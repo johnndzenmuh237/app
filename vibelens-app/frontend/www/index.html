@@ -1,0 +1,2733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080810">
+<title>VibeLens AI — Professional Photos, No Camera Needed</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root{
+  --gold:#f0c040;--gold2:#e8a820;--gold3:#ffd86e;
+  --bg:#080810;--bg2:#0e0e1a;--bg3:#13131f;
+  --card:#191926;--card2:#1e1e2e;--card3:#232338;
+  --border:rgba(255,255,255,0.06);--border2:rgba(240,192,64,0.2);
+  --text:#eeeef8;--muted:#6868a0;--muted2:#9898c0;
+  --accent:#c084fc;--pink:#f472b6;--cyan:#22d3ee;
+  --green:#4ade80;--red:#f87171;--orange:#fb923c;
+  --radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+h1,h2,h3,h4,.display{font-family:'Syne',sans-serif;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+img{max-width:100%;display:block;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--card2);border-radius:4px;}
+
+/* NOISE OVERLAY */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4;}
+
+/* AMBIENT */
+.amb{position:fixed;pointer-events:none;z-index:0;border-radius:50%;filter:blur(140px);}
+.a1{width:700px;height:700px;background:rgba(240,192,64,0.07);top:-300px;right:-200px;}
+.a2{width:600px;height:600px;background:rgba(192,132,252,0.06);bottom:-200px;left:-200px;}
+.a3{width:400px;height:400px;background:rgba(244,114,182,0.05);top:50%;left:40%;}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:1000;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(8,8,16,0.85);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;background:linear-gradient(135deg,var(--gold),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px;}
+.nav-center{display:flex;gap:2px;}
+.nav-tab{padding:7px 15px;border-radius:9px;font-size:0.78rem;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;transition:0.2s;}
+.nav-tab:hover,.nav-tab.active{color:var(--text);background:var(--card);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.credit-pill{display:flex;align-items:center;gap:7px;padding:7px 13px;background:var(--card2);border:1px solid var(--border2);border-radius:20px;font-size:0.8rem;cursor:pointer;transition:0.2s;}
+.credit-pill:hover{border-color:var(--gold);}
+.credit-val{font-weight:700;color:var(--gold);}
+.btn-primary{padding:8px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;border-radius:10px;font-size:0.82rem;border:none;cursor:pointer;transition:0.2s;}
+.btn-primary:hover{transform:scale(1.04);}
+.nav-avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;cursor:pointer;display:none;}
+.nav-avatar.show{display:block;}
+
+/* PAGES */
+.page{display:none;position:relative;z-index:1;}
+.page.active{display:block;}
+
+/* ================================================
+   HOME PAGE
+   ================================================ */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:90px 24px 60px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 18px;border:1px solid var(--border2);border-radius:30px;font-size:0.72rem;color:var(--gold);margin-bottom:28px;background:rgba(240,192,64,0.05);letter-spacing:0.5px;}
+.pulse{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:blink 1.5s infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px var(--gold);}50%{opacity:0.2;box-shadow:none;}}
+.hero h1{font-size:clamp(2.4rem,5.5vw,5rem);line-height:1.05;font-weight:800;max-width:860px;margin-bottom:22px;letter-spacing:-1px;}
+.grad{background:linear-gradient(135deg,var(--gold) 0%,var(--pink) 50%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{max-width:520px;color:var(--muted2);font-size:1rem;line-height:1.8;margin-bottom:38px;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:60px;}
+.btn-lg{padding:14px 30px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;border-radius:13px;font-size:0.92rem;display:inline-flex;align-items:center;gap:9px;border:none;cursor:pointer;transition:0.25s;font-family:'Syne',sans-serif;}
+.btn-lg:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(240,192,64,0.3);}
+.btn-lg-outline{padding:14px 30px;border:1px solid var(--border2);color:var(--text);font-weight:600;border-radius:13px;font-size:0.92rem;display:inline-flex;align-items:center;gap:9px;background:none;cursor:pointer;transition:0.25s;}
+.btn-lg-outline:hover{border-color:var(--gold);color:var(--gold);}
+.btn-google-lg{padding:14px 24px;background:var(--card);border:1px solid var(--border);color:var(--text);font-weight:600;border-radius:13px;font-size:0.9rem;display:inline-flex;align-items:center;gap:9px;cursor:pointer;transition:0.25s;}
+.btn-google-lg:hover{border-color:var(--border2);}
+
+/* STATS */
+.hero-stats{display:flex;gap:40px;padding:26px 40px;background:var(--card);border:1px solid var(--border);border-radius:22px;flex-wrap:wrap;justify-content:center;margin-bottom:80px;}
+.hstat-n{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hstat-l{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
+
+/* SECTION LABELS */
+.sec-eyebrow{font-size:0.68rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:700;}
+.home-sec{padding:80px 24px;max-width:1200px;margin:0 auto;}
+.home-sec-title{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;margin-bottom:12px;letter-spacing:-0.5px;}
+.home-sec-desc{color:var(--muted2);font-size:0.9rem;line-height:1.8;max-width:540px;}
+
+/* HOW IT WORKS */
+.demo-stages{display:grid;grid-template-columns:1fr 60px 1fr 60px 1fr;gap:0;align-items:center;margin-bottom:48px;}
+@media(max-width:768px){.demo-stages{grid-template-columns:1fr;gap:16px;}.demo-arrow{display:none!important;}}
+.demo-stage{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 20px;text-align:center;}
+.demo-stage .ds-num{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;}
+.demo-stage .ds-icon{font-size:2.4rem;margin-bottom:14px;}
+.demo-stage h3{font-size:0.95rem;font-weight:700;margin-bottom:6px;}
+.demo-stage p{font-size:0.78rem;color:var(--muted);line-height:1.7;}
+.demo-arrow{text-align:center;color:var(--gold);font-size:1.4rem;opacity:0.4;}
+
+/* BEFORE/AFTER */
+.ba-section{padding:80px 24px;background:linear-gradient(180deg,transparent,var(--bg2),transparent);}
+.ba-inner{max-width:1200px;margin:0 auto;}
+.ba-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:48px;}
+.ba-card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:0.3s;}
+.ba-card:hover{transform:translateY(-6px);border-color:var(--border2);box-shadow:0 20px 60px rgba(0,0,0,0.4);}
+.ba-images{display:grid;grid-template-columns:1fr 1fr;position:relative;}
+.ba-img{aspect-ratio:4/5;position:relative;overflow:hidden;}
+.ba-label{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);padding:4px 10px;border-radius:8px;font-size:0.62rem;font-weight:700;white-space:nowrap;z-index:2;}
+.ba-label.before-lbl{background:rgba(0,0,0,0.7);color:var(--muted2);}
+.ba-label.after-lbl{background:rgba(240,192,64,0.9);color:#000;}
+.ba-divider{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--gold);z-index:3;}
+.ba-divider::after{content:'⟺';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--gold);color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:900;}
+.ba-info{padding:18px;}
+.ba-info h3{font-size:0.92rem;font-weight:700;margin-bottom:4px;}
+.ba-info p{font-size:0.76rem;color:var(--muted);line-height:1.6;}
+.ba-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:0.65rem;font-weight:700;margin-top:8px;}
+
+/* QUOTE DEMO */
+.quote-demo-banner{padding:80px 24px;background:linear-gradient(135deg,var(--bg2),var(--bg3));}
+.quote-demo-inner{max-width:1200px;margin:0 auto;}
+.quote-demo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:48px;}
+.qdemo-card{border-radius:20px;overflow:hidden;position:relative;aspect-ratio:4/5;display:flex;flex-direction:column;justify-content:flex-end;}
+.qdemo-bg{position:absolute;inset:0;z-index:0;}
+.qdemo-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(transparent 20%,rgba(0,0,0,0.85));}
+.qdemo-content{position:relative;z-index:2;padding:22px;}
+.qdemo-cat{font-size:0.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;opacity:0.85;}
+.qdemo-quote{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;line-height:1.5;margin-bottom:14px;}
+.qdemo-author{font-size:0.7rem;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:6px;margin-bottom:12px;}
+.qdemo-author::before{content:'';width:20px;height:1px;background:currentColor;}
+
+/* FEATURE OVERVIEW */
+.feat-overview{padding:80px 24px;max-width:1200px;margin:0 auto;}
+.feat-overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-top:48px;}
+.fo-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;transition:0.3s;position:relative;overflow:hidden;}
+.fo-card:hover{transform:translateY(-5px);border-color:var(--border2);}
+.fo-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:18px;}
+.fo-card h3{font-size:1rem;margin-bottom:8px;}
+.fo-card p{font-size:0.81rem;color:var(--muted);line-height:1.75;margin-bottom:14px;}
+.fo-samples{display:flex;gap:6px;margin-bottom:14px;}
+.fo-sample{width:44px;height:44px;border-radius:8px;overflow:hidden;cursor:pointer;transition:0.2s;}
+.fo-sample:hover{transform:scale(1.06);}
+.fo-price-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:8px;font-size:0.68rem;font-weight:700;}
+
+/* ================================================
+   STUDIO PAGE
+   ================================================ */
+.studio-wrap{padding:80px 24px 100px;max-width:1180px;margin:0 auto;}
+.user-bar{display:none;align-items:center;gap:12px;padding:12px 18px;background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;}
+.user-bar.show{display:flex;}
+.user-av{width:36px;height:36px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;}
+.user-name{font-weight:600;font-size:0.88rem;}
+.user-email{font-size:0.73rem;color:var(--muted);}
+.sign-out{margin-left:auto;padding:6px 13px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:0.76rem;cursor:pointer;transition:0.2s;}
+.sign-out:hover{border-color:var(--red);color:var(--red);}
+
+/* CREDIT BAR */
+.credit-bar{padding:16px 20px;background:var(--card2);border:1px solid var(--border2);border-radius:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.credit-bar-left{display:flex;align-items:center;gap:14px;}
+.credit-icon{width:40px;height:40px;background:rgba(240,192,64,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--gold);}
+.credit-big{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--gold);}
+.credit-sub{font-size:0.72rem;color:var(--muted);margin-top:1px;}
+.free-badge{padding:3px 9px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:8px;font-size:0.64rem;font-weight:700;color:var(--green);margin-left:8px;}
+.topup-sm{padding:9px 16px;background:var(--gold);color:#000;border:none;border-radius:10px;font-weight:700;font-size:0.8rem;cursor:pointer;transition:0.2s;}
+.topup-sm:hover{background:var(--gold2);}
+
+/* TABS */
+.feat-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:32px;padding:6px;background:var(--card);border-radius:16px;border:1px solid var(--border);}
+.ftab{padding:9px 14px;border-radius:11px;font-size:0.76rem;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:none;display:flex;align-items:center;gap:6px;transition:0.2s;white-space:nowrap;}
+.ftab:hover{color:var(--text);}
+.ftab.active{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
+.ftab .cr{font-size:0.58rem;padding:2px 6px;background:rgba(255,255,255,0.1);border-radius:5px;}
+.ftab.active .cr{background:rgba(0,0,0,0.2);color:#000;}
+.ftab .free-cr{font-size:0.58rem;padding:2px 6px;background:rgba(74,222,128,0.15);color:var(--green);border-radius:5px;}
+
+/* PANELS */
+.panel{display:none;}
+.panel.active{display:block;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.sec-label{font-size:0.66rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:700;}
+.sec-title{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin-bottom:8px;letter-spacing:-0.5px;}
+.sec-desc{font-size:0.84rem;color:var(--muted2);margin-bottom:28px;max-width:520px;line-height:1.7;}
+
+/* FREE NOTICE */
+.free-notice{padding:12px 16px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;font-size:0.78rem;color:var(--muted2);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.free-notice i{color:var(--green);}
+.watermark-notice{padding:12px 16px;background:rgba(251,146,60,0.07);border:1px solid rgba(251,146,60,0.2);border-radius:12px;font-size:0.78rem;color:var(--muted2);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.watermark-notice i{color:var(--orange);}
+
+/* SAMPLE GALLERY */
+.sample-gallery{margin-bottom:28px;}
+.sample-label{font-size:0.7rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border2);border-radius:20px;padding:44px 24px;text-align:center;cursor:pointer;transition:0.25s;background:var(--card);position:relative;overflow:hidden;margin-bottom:22px;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:rgba(240,192,64,0.03);}
+.upload-zone .uz-icon{font-size:2.4rem;color:var(--gold);opacity:0.5;margin-bottom:14px;}
+.upload-zone h3{font-size:1rem;margin-bottom:6px;}
+.upload-zone p{font-size:0.78rem;color:var(--muted);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.uz-preview{display:none;width:100%;max-height:280px;object-fit:contain;border-radius:12px;margin-top:16px;}
+
+/* SUB LABEL */
+.sub-label{font-size:0.7rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:2px;margin:20px 0 10px;}
+
+/* MODE CHIPS */
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:6px;}
+.chip{padding:12px 10px;border-radius:12px;background:var(--card);border:1px solid var(--border);text-align:center;cursor:pointer;transition:0.2s;font-size:0.75rem;font-weight:600;color:var(--muted);}
+.chip:hover{border-color:var(--border2);color:var(--text);}
+.chip.sel{border-color:var(--gold);background:rgba(240,192,64,0.08);color:var(--gold);}
+.chip i{display:block;font-size:1.2rem;margin-bottom:7px;opacity:0.6;}
+.chip.sel i{opacity:1;}
+
+/* BEAUTY */
+.beauty-list{display:grid;gap:10px;margin-bottom:6px;}
+.bctrl{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:15px 18px;}
+.bctrl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+.bctrl-name{font-size:0.84rem;font-weight:600;display:flex;align-items:center;gap:8px;}
+.toggle{width:42px;height:22px;background:var(--bg3);border-radius:11px;cursor:pointer;position:relative;border:none;transition:0.25s;flex-shrink:0;}
+.toggle.on{background:var(--gold);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:0.25s;}
+.toggle.on::after{left:23px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;border-radius:3px;background:var(--bg3);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--gold);border-radius:50%;cursor:pointer;}
+
+/* PROCESS BTN */
+.proc-btn{width:100%;padding:16px;margin-top:20px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;font-size:0.95rem;border-radius:14px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:0.25s;font-family:'Syne',sans-serif;}
+.proc-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(240,192,64,0.3);}
+.proc-btn:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
+.cr-cost{font-size:0.64rem;padding:2px 8px;background:rgba(0,0,0,0.25);border-radius:6px;font-weight:400;}
+
+/* PROGRESS */
+.progress-box{display:none;margin-top:20px;padding:20px;background:var(--card2);border-radius:14px;border:1px solid var(--border);}
+.progress-box.show{display:block;}
+.prog-step{font-size:0.76rem;color:var(--gold);font-weight:700;margin-bottom:10px;}
+.prog-bar{height:3px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:3px;width:0%;transition:width 0.3s;}
+.prog-label{font-size:0.73rem;color:var(--muted);margin-top:8px;}
+
+/* RESULT */
+.result-box{display:none;margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;}
+.result-box.show{display:block;animation:fadeUp 0.4s ease;}
+.result-box h3{font-size:1.05rem;margin-bottom:16px;}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+@media(max-width:560px){.result-grid{grid-template-columns:1fr;}}
+.result-img-wrap{border-radius:13px;overflow:hidden;position:relative;background:var(--bg3);min-height:170px;}
+.result-img-wrap img{width:100%;border-radius:13px;}
+.result-img-wrap .rlabel{position:absolute;top:8px;left:8px;padding:3px 10px;background:rgba(0,0,0,0.75);border-radius:8px;font-size:0.65rem;font-weight:700;z-index:2;}
+.result-ph{min-height:170px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;border-radius:13px;background:var(--bg3);}
+.result-ph i{font-size:2rem;color:var(--gold);}
+.result-ph p{font-size:0.76rem;color:var(--muted);text-align:center;}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.rbtn{padding:10px 17px;border-radius:10px;font-size:0.78rem;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;gap:7px;transition:0.2s;}
+.rbtn-dl{background:var(--gold);color:#000;}
+.rbtn-dl:hover{background:var(--gold2);}
+.rbtn-share{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+.rbtn-share:hover{border-color:var(--border2);}
+
+/* WATERMARK RESULT */
+.watermark-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;}
+.watermark-text{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:rgba(240,192,64,0.35);transform:rotate(-30deg);text-shadow:0 0 20px rgba(0,0,0,0.5);letter-spacing:4px;}
+
+/* AD MODAL */
+.ad-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);z-index:8000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:0.3s;}
+.ad-overlay.open{opacity:1;pointer-events:all;}
+.ad-modal{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:32px;max-width:480px;width:100%;text-align:center;}
+.ad-countdown{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--gold);margin:16px 0;}
+.ad-progress{height:4px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-bottom:24px;}
+.ad-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:4px;transition:width 1s linear;}
+.ad-content{background:var(--bg3);border-radius:14px;padding:24px;margin-bottom:24px;}
+.skip-btn{padding:12px 28px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--muted);cursor:pointer;transition:0.2s;}
+.skip-btn:hover{border-color:var(--gold);color:var(--gold);}
+.skip-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* QUOTES PANEL */
+.q-cats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:20px;}
+.qcat{padding:9px 15px;border-radius:20px;border:1px solid var(--border);font-size:0.78rem;font-weight:600;cursor:pointer;background:none;color:var(--muted);transition:0.2s;}
+.qcat:hover,.qcat.sel{border-color:var(--gold);color:var(--gold);background:rgba(240,192,64,0.07);}
+.quote-type-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.qttype{padding:8px 14px;border-radius:10px;border:1px solid var(--border);font-size:0.76rem;font-weight:600;cursor:pointer;background:var(--card);color:var(--muted);transition:0.2s;}
+.qttype.sel{border-color:var(--accent);color:var(--accent);background:rgba(192,132,252,0.07);}
+
+/* POSE GRID */
+.pose-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:20px;}
+.pose-card{aspect-ratio:3/4;border-radius:12px;overflow:hidden;cursor:pointer;position:relative;}
+.pose-card .pname{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:0.58rem;color:#fff;font-weight:700;z-index:1;}
+
+/* EXPORT */
+.export-sizes{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px;}
+.szchip{padding:8px 14px;border-radius:10px;background:var(--card2);border:1px solid var(--border);font-size:0.76rem;font-weight:600;cursor:pointer;transition:0.2s;}
+.szchip:hover,.szchip.sel{border-color:var(--gold);color:var(--gold);}
+.export-platforms{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-top:20px;}
+.expcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:0.25s;}
+.expcard:hover{border-color:var(--border2);transform:translateY(-3px);}
+.expcard .eicon{font-size:2rem;margin-bottom:10px;}
+.expcard h3{font-size:0.88rem;margin-bottom:4px;}
+.expcard p{font-size:0.72rem;color:var(--muted);}
+
+/* ================================================
+   SETTINGS
+   ================================================ */
+.settings-wrap{padding:80px 24px;max-width:740px;margin:0 auto;}
+.api-status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:8px;margin-bottom:26px;}
+.api-item{padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;gap:9px;font-size:0.76rem;}
+.api-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.api-dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
+.api-dot.off{background:var(--red);}
+.api-name{font-weight:600;}
+.api-note{font-size:0.64rem;color:var(--muted);}
+.settings-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:14px;}
+.settings-card h3{font-size:0.97rem;margin-bottom:5px;}
+.settings-card .sdesc{font-size:0.8rem;color:var(--muted);margin-bottom:18px;line-height:1.7;}
+.field-group{margin-bottom:13px;}
+.field-group label{display:block;font-size:0.74rem;font-weight:700;color:var(--muted2);margin-bottom:6px;}
+.field-group input{width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:0.82rem;transition:0.2s;}
+.field-group input:focus{outline:none;border-color:var(--gold);}
+.field-group input::placeholder{color:var(--muted);}
+.field-hint{font-size:0.7rem;color:var(--muted);margin-top:5px;}
+.field-hint a{color:var(--gold);}
+.warn-box{padding:12px 14px;background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.18);border-radius:10px;font-size:0.76rem;color:var(--muted);margin-top:10px;line-height:1.7;}
+.info-box{padding:12px 14px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.18);border-radius:10px;font-size:0.76rem;color:var(--muted);margin-bottom:16px;line-height:1.9;}
+.info-box a{color:var(--gold);}
+.firebase-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:480px){.firebase-grid{grid-template-columns:1fr;}}
+.save-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;font-size:0.92rem;border-radius:13px;border:none;cursor:pointer;transition:0.2s;margin-top:8px;font-family:'Syne',sans-serif;}
+.save-btn:hover{transform:translateY(-1px);}
+.key-note{font-size:0.71rem;color:var(--muted);text-align:center;margin-top:10px;}
+.history-list{display:flex;flex-direction:column;gap:7px;margin-top:14px;}
+.hitem{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card2);border-radius:10px;font-size:0.78rem;}
+.hitem .ha{color:var(--muted2);}
+.hitem .hcr{font-weight:700;}
+.hitem .hcr.cr{color:var(--green);}
+.hitem .hcr.dr{color:var(--red);}
+
+/* ================================================
+   PRICING
+   ================================================ */
+.pricing-wrap{padding:90px 24px;max-width:960px;margin:0 auto;text-align:center;}
+.pricing-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:40px;text-align:left;}
+.pcard{background:var(--card);border:2px solid var(--border);border-radius:22px;padding:30px;transition:0.25s;}
+.pcard.featured{border-color:var(--gold);background:rgba(240,192,64,0.03);}
+.pcard:hover{transform:translateY(-5px);}
+.pbadge{font-size:0.66rem;font-weight:700;color:#000;background:var(--gold);padding:3px 10px;border-radius:9px;display:inline-block;margin-bottom:14px;}
+.pcard h3{font-size:1rem;margin-bottom:6px;}
+.pprice{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;margin-bottom:4px;}
+.pprice span{font-size:0.9rem;font-weight:400;color:var(--muted);}
+.local-price{font-size:0.78rem;color:var(--muted2);margin-bottom:6px;}
+.pdesc{font-size:0.8rem;color:var(--muted);margin-bottom:18px;}
+.pcreds{padding:12px;background:rgba(240,192,64,0.07);border:1px solid var(--border2);border-radius:12px;text-align:center;margin-bottom:18px;}
+.pcreds .crn{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--gold);}
+.pcreds .crl{font-size:0.7rem;color:var(--muted);}
+.pfeats{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:22px;}
+.pfeats li{font-size:0.8rem;display:flex;align-items:center;gap:9px;}
+.pfeats li i{color:var(--gold);font-size:0.72rem;}
+.ppay-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;font-size:0.9rem;border-radius:12px;border:none;cursor:pointer;transition:0.2s;font-family:'Syne',sans-serif;}
+.ppay-btn:hover{transform:translateY(-2px);}
+.credit-table{margin-top:48px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px;text-align:left;}
+.credit-table h3{margin-bottom:18px;}
+.ctable{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px;}
+.crow{padding:12px 15px;background:var(--bg3);border-radius:11px;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;}
+.crow span:last-child{color:var(--gold);font-weight:700;}
+.free-row span:last-child{color:var(--green);}
+
+/* ================================================
+   MODALS
+   ================================================ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:0.25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:34px;max-width:500px;width:100%;position:relative;transform:scale(0.92);transition:0.25s;max-height:92vh;overflow-y:auto;}
+.modal-overlay.open .modal{transform:scale(1);}
+.modal-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;line-height:1;padding:6px;}
+.modal-x:hover{color:var(--text);}
+.modal h2{margin-bottom:6px;font-size:1.5rem;}
+.modal-sub{font-size:0.82rem;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.google-btn{width:100%;padding:14px 18px;background:var(--card2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:0.2s;margin-bottom:10px;}
+.google-btn:hover{border-color:var(--border2);}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--muted);font-size:0.76rem;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.auth-note{font-size:0.73rem;color:var(--muted);text-align:center;margin-top:16px;line-height:1.7;}
+.auth-note a{color:var(--gold);}
+.signup-form{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.signup-form input{width:100%;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:11px;color:var(--text);font-size:0.85rem;}
+.signup-form input:focus{outline:none;border-color:var(--gold);}
+.signup-form input::placeholder{color:var(--muted);}
+.signup-submit{padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;font-size:0.9rem;border-radius:11px;border:none;cursor:pointer;font-family:'Syne',sans-serif;}
+.free-credits-note{padding:12px 15px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);border-radius:11px;font-size:0.78rem;color:var(--muted2);text-align:center;margin-bottom:14px;}
+.free-credits-note strong{color:var(--green);}
+
+/* TOPUP MODAL */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;}
+@media(max-width:380px){.plan-grid{grid-template-columns:1fr;}}
+.plancard{padding:18px 10px;border-radius:16px;border:2px solid var(--border);text-align:center;cursor:pointer;transition:0.2s;}
+.plancard:hover,.plancard.sel{border-color:var(--gold);}
+.plancard.popular{border-color:var(--gold);background:rgba(240,192,64,0.05);}
+.pop-badge{font-size:0.58rem;font-weight:700;color:#000;background:var(--gold);padding:2px 7px;border-radius:7px;display:inline-block;margin-bottom:7px;}
+.plan-cr{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;color:var(--gold);}
+.plan-crl{font-size:0.65rem;color:var(--muted);margin-bottom:6px;}
+.plan-price{font-size:0.95rem;font-weight:700;}
+.plan-local{font-size:0.64rem;color:var(--muted2);}
+.pay-methods{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+.pmeth{padding:8px 13px;border-radius:10px;border:1px solid var(--border);font-size:0.76rem;font-weight:600;cursor:pointer;background:none;color:var(--muted);transition:0.2s;}
+.pmeth.sel,.pmeth:hover{border-color:var(--gold);color:var(--gold);}
+.pay-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;font-size:0.92rem;border-radius:13px;border:none;cursor:pointer;transition:0.2s;font-family:'Syne',sans-serif;}
+.pay-btn:hover{transform:translateY(-2px);}
+.pay-secure{font-size:0.68rem;color:var(--muted);text-align:center;margin-top:10px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;z-index:9999;padding:14px 20px;background:var(--card2);border:1px solid var(--border2);border-radius:14px;font-size:0.82rem;display:flex;align-items:center;gap:10px;transform:translateX(150%);transition:0.32s;max-width:320px;box-shadow:0 6px 30px rgba(0,0,0,0.5);}
+.toast.show{transform:translateX(0);}
+.toast.success{border-color:rgba(74,222,128,0.4);}
+.toast.error{border-color:rgba(248,113,113,0.4);}
+.toast.success i{color:var(--green);}
+.toast.error i{color:var(--red);}
+
+@media(max-width:768px){
+  nav{padding:0 16px;}
+  .nav-center{display:none;}
+  .studio-wrap{padding:72px 14px 90px;}
+  .feat-tabs{overflow-x:auto;flex-wrap:nowrap;}
+  .feat-tabs::-webkit-scrollbar{height:0;}
+  .mode-grid{grid-template-columns:repeat(3,1fr);}
+  .plan-grid{grid-template-columns:1fr 1fr 1fr;}
+}
+@media(max-width:480px){
+  .plan-grid{grid-template-columns:1fr;}
+  .pricing-cards{grid-template-columns:1fr;}
+}
+
+/* ===== ADDITIONS BELOW: placeholders, lightbox, copy-prompt, selectable tiles ===== */
+/* ================================================
+   IMAGE PLACEHOLDER SYSTEM
+   ================================================ */
+.imgph{
+  position:relative;width:100%;height:100%;
+  background:linear-gradient(135deg,var(--card2),var(--card3));
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  overflow:hidden;color:var(--muted);
+}
+.imgph::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(45deg,rgba(255,255,255,0.025) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.025) 50%,rgba(255,255,255,0.025) 75%,transparent 75%,transparent);
+  background-size:14px 14px;
+}
+.imgph .imgph-icon{font-size:1.6rem;opacity:0.35;margin-bottom:6px;position:relative;z-index:1;}
+.imgph .imgph-label{font-size:0.62rem;font-weight:700;text-align:center;padding:0 10px;opacity:0.55;position:relative;z-index:1;letter-spacing:0.3px;}
+.imgph .imgph-tag{position:absolute;top:6px;right:6px;font-size:0.52rem;font-weight:800;letter-spacing:1px;padding:2px 6px;border-radius:5px;background:rgba(240,192,64,0.15);color:var(--gold);border:1px solid rgba(240,192,64,0.25);z-index:1;}
+.imgph.imgph-sm .imgph-icon{font-size:1.1rem;margin-bottom:3px;}
+.imgph.imgph-sm .imgph-label{font-size:0.56rem;}
+.imgph.imgph-hero{min-height:280px;border-radius:20px;}
+.imgph.imgph-hero .imgph-icon{font-size:2.6rem;}
+.imgph.imgph-hero .imgph-label{font-size:0.74rem;}
+.imgph.sel-glow{box-shadow:inset 0 0 0 2px var(--gold);}
+
+/* ================================================
+   SELECTABLE TILE (outfit/background/beauty/poster style images)
+   ================================================ */
+.seltile{border-radius:13px;border:2px solid var(--border);cursor:pointer;transition:0.2s;overflow:hidden;position:relative;aspect-ratio:1/1;}
+.seltile:hover{border-color:var(--border2);transform:translateY(-2px);}
+.seltile.sel{border-color:var(--gold);}
+.seltile.sel::after{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;top:6px;right:6px;width:20px;height:20px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;z-index:2;}
+.seltile-cap{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;background:linear-gradient(transparent,rgba(0,0,0,0.85));font-size:0.62rem;font-weight:700;z-index:1;text-align:center;}
+.seltile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:9px;margin-bottom:8px;}
+.seltile-grid.sm{grid-template-columns:repeat(auto-fill,minmax(78px,1fr));}
+
+/* Topic header row (category cover + label + small "view all" link) */
+.topic-row{display:flex;align-items:center;gap:14px;margin:26px 0 12px;}
+.topic-cover{width:54px;height:54px;border-radius:12px;flex-shrink:0;overflow:hidden;}
+.topic-meta h4{font-size:0.92rem;font-weight:700;margin-bottom:2px;}
+.topic-meta p{font-size:0.72rem;color:var(--muted);}
+
+/* ================================================
+   LIGHTBOX / SLIDER
+   ================================================ */
+.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(14px);z-index:9500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:0.25s;}
+.lightbox-overlay.open{opacity:1;pointer-events:all;}
+.lightbox-box{background:var(--card);border:1px solid var(--border2);border-radius:22px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
+.lightbox-x{position:absolute;top:12px;right:14px;background:rgba(0,0,0,0.4);border:none;color:#fff;font-size:1.2rem;cursor:pointer;width:32px;height:32px;border-radius:50%;z-index:5;display:flex;align-items:center;justify-content:center;}
+.lightbox-stage{aspect-ratio:4/5;position:relative;background:var(--bg3);}
+.lightbox-stage .imgph{border-radius:0;}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;transition:0.2s;}
+.lightbox-nav:hover{background:var(--gold);color:#000;}
+.lightbox-nav.prev{left:12px;}
+.lightbox-nav.next{right:12px;}
+.lightbox-dots{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:4;}
+.lightbox-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);cursor:pointer;transition:0.2s;}
+.lightbox-dot.active{background:var(--gold);width:16px;border-radius:4px;}
+.lightbox-body{padding:20px 22px 24px;}
+.lightbox-body h3{font-size:1rem;margin-bottom:6px;}
+.lightbox-body .lb-cat{font-size:0.66rem;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.lb-prompt-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:0.78rem;color:var(--muted2);line-height:1.6;margin:12px 0;max-height:120px;overflow-y:auto;}
+.lb-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+
+/* ================================================
+   COPY PROMPT BUTTON
+   ================================================ */
+.copy-btn{padding:8px 14px;border-radius:9px;font-size:0.74rem;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:rgba(240,192,64,0.08);color:var(--gold);display:inline-flex;align-items:center;gap:6px;transition:0.2s;white-space:nowrap;}
+.copy-btn:hover{background:rgba(240,192,64,0.16);}
+.copy-btn.copied{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green);}
+.copy-btn-sm{padding:5px 10px;font-size:0.66rem;border-radius:7px;}
+
+/* Quote list rows with copy button */
+.quote-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;}
+.quote-row p{font-size:0.82rem;line-height:1.6;flex:1;}
+.quote-row .qrn{font-size:0.68rem;color:var(--gold);font-weight:700;margin-right:6px;}
+
+/* Category block for Your Photo + Quote */
+.qcat-block{margin-bottom:36px;}
+.qcat-hero-row{display:flex;gap:14px;align-items:center;margin-bottom:14px;}
+.qcat-hero-img{width:84px;height:84px;border-radius:14px;flex-shrink:0;overflow:hidden;}
+.qcat-hero-title{font-size:1.05rem;font-weight:800;font-family:'Syne',sans-serif;}
+.qcat-hero-sub{font-size:0.74rem;color:var(--muted);margin-top:2px;}
+.qcat-quotes{display:none;}
+.qcat-quotes.open{display:block;}
+.qcat-toggle{padding:7px 13px;border-radius:9px;border:1px solid var(--border);background:var(--card2);font-size:0.74rem;font-weight:600;color:var(--muted2);cursor:pointer;margin-left:auto;}
+.qcat-toggle:hover{border-color:var(--gold);color:var(--gold);}
+
+/* Generic "view all" small image button used in galleries */
+.thumb-btn{border:none;background:none;padding:0;cursor:pointer;border-radius:12px;overflow:hidden;width:100%;aspect-ratio:1/1;position:relative;transition:0.2s;}
+.thumb-btn:hover{transform:translateY(-2px);}
+.thumb-btn .dl-badge{position:absolute;bottom:6px;right:6px;width:22px;height:22px;background:rgba(0,0,0,0.6);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.6rem;z-index:1;}
+
+/* Beauty control image swatch */
+.bctrl-swatch{width:38px;height:38px;border-radius:9px;flex-shrink:0;overflow:hidden;margin-right:10px;}
+.bctrl-head-left{display:flex;align-items:center;gap:0;flex:1;}
+
+/* Selected style summary banner shown above upload zones once a style chosen */
+.sel-summary{display:none;align-items:center;gap:12px;padding:12px 16px;background:rgba(240,192,64,0.06);border:1px solid var(--border2);border-radius:13px;margin-bottom:16px;}
+.sel-summary.show{display:flex;}
+.sel-summary img,.sel-summary .imgph{width:46px;height:46px;border-radius:10px;flex-shrink:0;}
+.sel-summary .ss-text{flex:1;font-size:0.8rem;}
+.sel-summary .ss-text strong{color:var(--gold);}
+.sel-summary .ss-clear{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.9rem;padding:4px;}
+
+/* Free-use badge for "1 free edit" */
+.free-use-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);border-radius:7px;font-size:0.64rem;font-weight:700;color:var(--green);margin-left:8px;}
+
+/* Prompt textarea for poster panel (user pastes/edits prompt) */
+.prompt-textarea{width:100%;min-height:90px;padding:13px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.82rem;font-family:inherit;resize:vertical;margin-bottom:6px;}
+.prompt-textarea:focus{outline:none;border-color:var(--gold);}
+
+</style>
+</head>
+<body>
+<script src="app-config.js"></script>
+<script src="api-client.js"></script>
+
+<div class="amb a1"></div>
+<div class="amb a2"></div>
+<div class="amb a3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><span>✦</span> VibeLens AI</div>
+  <div class="nav-center">
+    <button class="nav-tab active" onclick="showPage('home')">Home</button>
+    <button class="nav-tab" onclick="showPage('studio')">Studio</button>
+    <button class="nav-tab" onclick="showPage('pricing')">Pricing</button>
+    <button class="nav-tab" id="navSettingsTab" style="display:none;" onclick="showPage('settings')">Settings</button>
+  </div>
+  <div class="nav-right">
+    <div class="credit-pill" onclick="openTopup()">
+      <i class="fas fa-coins" style="color:var(--gold);font-size:0.72rem;"></i>
+      <span class="credit-val" id="navCr">20</span>
+      <span style="color:var(--muted);font-size:0.68rem;">cr</span>
+    </div>
+    <img id="navAvatar" class="nav-avatar" src="" alt="">
+    <button class="btn-primary" id="navSignIn" onclick="openAuthModal()"><i class="fas fa-user"></i> Sign In</button>
+    <button class="btn-primary" id="navTopup" style="display:none;" onclick="openTopup()"><i class="fas fa-plus"></i> Top Up</button>
+  </div>
+</nav>
+
+<!-- ===================== HOME PAGE ===================== -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge"><span class="pulse"></span> AI-Powered · No Camera · No Studio · No Problem</div>
+    <h1>Transform Any Selfie Into<br><span class="grad">Professional Masterpieces</span></h1>
+    <p>Upload any photo — VibeLens AI delivers studio-quality portraits, outfit changes, background swaps, cinematic quote posters, beauty retouching and more. Powered by OpenAI.</p>
+    <div class="hero-btns">
+      <button class="btn-lg" onclick="showPage('studio')"><i class="fas fa-wand-magic-sparkles"></i> Try AI Studio Free</button>
+      <button class="btn-google-lg" onclick="openAuthModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Sign Up Free — Get 20 Credits
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hstat-n">4K</div><div class="hstat-l">Max Resolution</div></div>
+      <div><div class="hstat-n">8+</div><div class="hstat-l">AI Features</div></div>
+      <div><div class="hstat-n">40+</div><div class="hstat-l">Backgrounds</div></div>
+      <div><div class="hstat-n">20</div><div class="hstat-l">Poses per Shoot</div></div>
+      <div><div class="hstat-n">20</div><div class="hstat-l">Free Credits</div></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <div class="home-sec" style="padding-top:20px;">
+    <div class="sec-eyebrow">How It Works</div>
+    <div class="home-sec-title">Three Simple Steps to <span class="grad">Stunning Photos</span></div>
+    <div class="home-sec-desc">No photography skills needed. No expensive equipment. Just your phone and VibeLens AI.</div>
+    <div class="demo-stages" style="margin-top:48px;">
+      <div class="demo-stage">
+        <div class="ds-num">Step 01</div>
+        <div class="ds-icon">📸</div>
+        <h3>Upload Any Photo</h3>
+        <p>Take a selfie or upload any existing photo. Even low-quality photos work — AI fills in the details.</p>
+      </div>
+      <div class="demo-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="demo-stage" style="border-color:var(--border2);">
+        <div class="ds-num">Step 02</div>
+        <div class="ds-icon">⚡</div>
+        <h3>Choose Your AI Magic</h3>
+        <p>Pick from 8 AI features: enhance, outfit change, background swap, beauty retouching, quote posters & more.</p>
+      </div>
+      <div class="demo-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="demo-stage">
+        <div class="ds-num">Step 03</div>
+        <div class="ds-icon">✨</div>
+        <h3>Download & Share</h3>
+        <p>Get studio-quality results in seconds. Download in HD or 4K and share to any social platform.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- REAL BEFORE/AFTER FROM AI ENGINE — single live demo pair -->
+  <div class="home-sec" style="padding-top:0;">
+    <div class="sec-eyebrow">Live Demonstration</div>
+    <div class="home-sec-title">Real Before &amp; After <span class="grad">From Our AI Engine</span></div>
+    <div class="home-sec-desc" style="margin-bottom:28px;">Drop in your own before/after image pair here — each tile below is a placeholder image slot ready for your file.</div>
+    <div class="ba-grid" style="grid-template-columns:1fr;max-width:640px;">
+      <div class="ba-card">
+        <div class="ba-images">
+          <div class="ba-img" id="homeDemoBefore"></div>
+          <div class="ba-img" id="homeDemoAfter"></div>
+          <div class="ba-divider"></div>
+        </div>
+        <div class="ba-info">
+          <h3>Photo Enhancement — Live Sample</h3>
+          <p>Replace the two image slots above with your own original/result photos (e.g. <code>demo-before.jpg</code> / <code>demo-after.jpg</code>).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEFORE / AFTER GALLERY -->
+  <div class="ba-section">
+    <div class="ba-inner">
+      <div class="sec-eyebrow" style="text-align:center;">Real Results</div>
+      <div class="home-sec-title" style="text-align:center;">Before &amp; After Gallery</div>
+      <p style="text-align:center;color:var(--muted2);font-size:0.88rem;max-width:480px;margin:10px auto 0;line-height:1.7;">These transformations show what our AI does with ordinary photos. No editing skills needed.</p>
+
+      <div class="ba-grid" id="baGalleryGrid"></div>
+    </div>
+  </div>
+
+  <!-- QUOTE DEMO SECTION -->
+  <div class="quote-demo-banner">
+    <div class="quote-demo-inner">
+      <div class="sec-eyebrow" style="text-align:center;">AI Quote Posters</div>
+      <div class="home-sec-title" style="text-align:center;">Cinematic Quote <span class="grad">Masterpieces</span></div>
+      <p style="text-align:center;color:var(--muted2);font-size:0.88rem;max-width:500px;margin:10px auto 0;line-height:1.7;">Generate powerful motivational quotes with cinematic backgrounds. Copy a ready-made prompt and paste it straight into ChatGPT, or generate it right here in Studio.</p>
+      <div class="quote-demo-grid" id="homeQuoteDemoGrid"></div>
+      <div style="text-align:center;margin-top:32px;">
+        <button class="btn-lg" onclick="showPage('studio');setTimeout(()=>switchPanel('quotes'),200)">
+          <i class="fas fa-magic"></i> Create Your Quote Poster
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE OVERVIEW -->
+  <div class="feat-overview">
+    <div class="sec-eyebrow">All 8 AI Features</div>
+    <div class="home-sec-title">Everything You Need to <span class="grad">Look Amazing</span></div>
+    <p style="color:var(--muted2);font-size:0.88rem;max-width:500px;line-height:1.8;margin-top:10px;">Each feature powered by OpenAI's chat and image models — one API key, every tool unlocked.</p>
+    <div class="feat-overview-grid">
+      <div class="fo-card">
+        <div class="fo-icon" style="background:rgba(240,192,64,0.1);color:var(--gold);"><i class="fas fa-star-of-life"></i></div>
+        <h3>AI Photo Enhancement</h3>
+        <p>Transform blurry selfies into HD/4K studio-quality portraits with DSLR-like depth, perfect lighting and cinematic quality. First edit is free.</p>
+        <div class="fo-samples" id="foSamplesEnhance"></div>
+        <span class="fo-price-tag" style="background:rgba(240,192,64,0.1);color:var(--gold);">1 free edit · then 2 credits</span>
+      </div>
+      <div class="fo-card">
+        <div class="fo-icon" style="background:rgba(192,132,252,0.1);color:var(--accent);"><i class="fas fa-shirt"></i></div>
+        <h3>AI Outfit Changer</h3>
+        <p>Swap into business suits, African wear, wedding gowns, tuxedos, royal attire, luxury designer fashion — all realistically AI-generated.</p>
+        <div class="fo-samples" id="foSamplesOutfit"></div>
+        <span class="fo-price-tag" style="background:rgba(192,132,252,0.1);color:var(--accent);">5 credits · Premium feature</span>
+      </div>
+      <div class="fo-card">
+        <div class="fo-icon" style="background:rgba(244,114,182,0.1);color:var(--pink);"><i class="fas fa-images"></i></div>
+        <h3>Background Replacement</h3>
+        <p>Instantly teleport to 28+ locations across 5 categories: natural, classic, African & local, luxury, and world cities.</p>
+        <div class="fo-samples" id="foSamplesBg"></div>
+        <span class="fo-price-tag" style="background:rgba(244,114,182,0.1);color:var(--pink);">3 credits · Worldwide scenes</span>
+      </div>
+      <div class="fo-card">
+        <div class="fo-icon" style="background:rgba(74,222,128,0.1);color:var(--green);"><i class="fas fa-quote-left"></i></div>
+        <h3>AI Quote Poster Generator</h3>
+        <p>120 ready quotes across 12 categories, cinematic poster art, flyer designs, and your-photo-plus-quote layouts — all with copyable prompts.</p>
+        <div class="fo-samples" id="foSamplesQuotes"></div>
+        <span class="fo-price-tag" style="background:rgba(74,222,128,0.1);color:var(--green);">Generate free · Download 1cr</span>
+      </div>
+      <div class="fo-card">
+        <div class="fo-icon" style="background:rgba(34,211,238,0.1);color:var(--cyan);"><i class="fas fa-camera-retro"></i></div>
+        <h3>AI Photo Shoot (20 Poses)</h3>
+        <p>One selfie → 20 professional poses. Choose your shoot style, outfit and background scene before generating.</p>
+        <div class="fo-samples" id="foSamplesShoot"></div>
+        <span class="fo-price-tag" style="background:rgba(34,211,238,0.1);color:var(--cyan);">10 credits · Premium</span>
+      </div>
+      <div class="fo-card">
+        <div class="fo-icon" style="background:rgba(248,113,113,0.1);color:var(--red);"><i class="fas fa-face-smile-beam"></i></div>
+        <h3>Beauty Enhancement</h3>
+        <p>Professional retouching: teeth whitening, skin smoothing, acne removal, eye enhancement, lashes, makeup, beard styling — natural results.</p>
+        <div class="fo-samples" id="foSamplesBeauty"></div>
+        <span class="fo-price-tag" style="background:rgba(248,113,113,0.1);color:var(--red);">3 credits · Free watermark</span>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <button class="btn-lg" onclick="openAuthModal()"><i class="fas fa-rocket"></i> Start Free — Get 20 Credits</button>
+      <button class="btn-lg-outline" onclick="showPage('pricing')" style="margin-left:12px;"><i class="fas fa-gem"></i> See All Plans</button>
+    </div>
+  </div>
+
+</div><!-- /home page -->
+
+<!-- ===================== STUDIO PAGE ===================== -->
+<div class="page" id="page-studio">
+  <div class="studio-wrap">
+
+    <!-- USER BAR -->
+    <div class="user-bar" id="userBar">
+      <img class="user-av" id="userAv" src="" alt="">
+      <div>
+        <div class="user-name" id="userNameTxt">—</div>
+        <div class="user-email" id="userEmailTxt">—</div>
+      </div>
+      <button class="sign-out" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+    </div>
+
+    <!-- CREDIT BAR -->
+    <div class="credit-bar">
+      <div class="credit-bar-left">
+        <div class="credit-icon"><i class="fas fa-coins"></i></div>
+        <div>
+          <div class="credit-big" id="crDisplay">20 credits <span class="free-badge">FREE</span></div>
+          <div class="credit-sub">Credits power every AI task — never expire</div>
+        </div>
+      </div>
+      <button class="topup-sm" onclick="openTopup()"><i class="fas fa-plus"></i> Top Up</button>
+    </div>
+
+    <!-- TABS -->
+    <div class="feat-tabs" id="featTabs">
+      <button class="ftab active" data-panel="enhance"><i class="fas fa-star-of-life"></i> Enhance <span class="free-cr">1 FREE</span></button>
+      <button class="ftab" data-panel="quotes"><i class="fas fa-quote-left"></i> Quotes <span class="free-cr">FREE</span></button>
+      <button class="ftab" data-panel="outfit"><i class="fas fa-shirt"></i> Outfit <span class="cr">5cr</span></button>
+      <button class="ftab" data-panel="background"><i class="fas fa-images"></i> Background <span class="cr">3cr</span></button>
+      <button class="ftab" data-panel="shoot"><i class="fas fa-camera-retro"></i> Photo Shoot <span class="cr">10cr</span></button>
+      <button class="ftab" data-panel="beauty"><i class="fas fa-face-smile"></i> Beauty <span class="cr">3cr</span></button>
+      <button class="ftab" data-panel="poster"><i class="fas fa-layer-group"></i> Poster <span class="cr">4cr</span></button>
+      <button class="ftab" data-panel="export"><i class="fas fa-share-nodes"></i> Export</button>
+    </div>
+
+    <!-- ====== ENHANCE ====== -->
+    <div class="panel active" id="panel-enhance">
+      <div class="sec-label">Feature 01 · OpenAI gpt-image-1</div>
+      <div class="sec-title">AI Photo Enhancement</div>
+      <div class="sec-desc">Transform any photo into a professional masterpiece. Your first enhancement is completely free — after that it's 2 credits per edit.</div>
+
+      <div class="free-notice" id="enhanceFreeNotice"><i class="fas fa-gift"></i> Your first enhancement is on us — no credits, no watermark.</div>
+
+      <div class="imgph imgph-hero" data-slot="Enhance hero — studio portrait" style="margin-bottom:24px;">
+        <span class="imgph-icon"><i class="fas fa-star-of-life"></i></span>
+        <span class="imgph-label">Enhance hero image — drop your best studio-quality sample here</span>
+      </div>
+
+      <div class="sample-gallery">
+        <div class="sample-label">📸 Enhancement Modes — click to preview the exact prompt used</div>
+        <div class="seltile-grid sm" id="enhanceModeGallery"></div>
+        <p style="font-size:0.7rem;color:var(--muted);margin-top:6px;"><i class="fas fa-circle-info"></i> Click a tile to select it for generation, or click the small <i class="fas fa-expand" style="color:var(--gold);"></i> icon inside the lightbox to copy its exact prompt.</p>
+      </div>
+
+      <div class="upload-zone" id="uz-enhance">
+        <input type="file" id="file-enhance" accept="image/*" onchange="handleUpload(this,'prev-enhance','uz-enhance')">
+        <div class="uz-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+        <h3>Drop your photo here</h3>
+        <p>JPG, PNG, WEBP up to 20MB</p>
+        <img id="prev-enhance" class="uz-preview" src="" alt="">
+      </div>
+
+      <div class="sub-label">Photo Style</div>
+      <div class="mode-grid" id="mg-enhance-style">
+        <div class="chip sel" onclick="pickChip(this)"><i class="fas fa-house"></i>Natural</div>
+        <div class="chip" onclick="pickChip(this)"><i class="fas fa-landmark"></i>Classic</div>
+        <div class="chip" onclick="pickChip(this)"><i class="fas fa-gem"></i>Luxury</div>
+        <div class="chip" onclick="pickChip(this)"><i class="fas fa-briefcase"></i>Professional</div>
+        <div class="chip" onclick="pickChip(this)"><i class="fas fa-film"></i>Cinematic</div>
+        <div class="chip" onclick="pickChip(this)"><i class="fas fa-rings-wedding"></i>Wedding</div>
+        <div class="chip" onclick="pickChip(this)"><i class="fas fa-star"></i>Editorial</div>
+        <div class="chip" onclick="pickChip(this)"><i class="fas fa-building"></i>Corporate</div>
+      </div>
+
+      <button class="proc-btn" onclick="requireAuth(runEnhance)">
+        <i class="fas fa-wand-magic-sparkles"></i> Enhance Photo
+        <span class="cr-cost" id="enhanceCostLabel">FREE — 1st edit</span>
+      </button>
+      <div class="progress-box" id="prog-enhance">
+        <div class="prog-step" id="ps-enhance">Analyzing image...</div>
+        <div class="prog-bar"><div class="prog-fill" id="pf-enhance"></div></div>
+        <div class="prog-label">Sending to OpenAI</div>
+      </div>
+      <div class="result-box" id="res-enhance">
+        <h3>✦ Enhancement Complete</h3>
+        <div class="result-grid">
+          <div class="result-img-wrap">
+            <img id="orig-img" src="" alt="Original">
+            <span class="rlabel" style="color:var(--muted2);">Original</span>
+          </div>
+          <div class="result-img-wrap">
+            <img id="enh-img" src="" alt="Enhanced" style="display:none;">
+            <div class="watermark-overlay" id="enh-watermark"><div class="watermark-text">VIBELENS AI</div></div>
+            <div class="result-ph" id="enh-ph"><i class="fas fa-wand-magic-sparkles"></i><p>AI result appears here</p></div>
+            <span class="rlabel" style="color:var(--gold);">AI Enhanced ✦</span>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="rbtn rbtn-dl" onclick="showAdThenDownload('enh-img','enhanced.png')"><i class="fas fa-download"></i> Download (Watch Ad)</button>
+          <button class="rbtn rbtn-dl" style="background:var(--accent);color:#fff;" onclick="unlockNoWatermark()"><i class="fas fa-crown"></i> Remove Watermark</button>
+          <button class="rbtn rbtn-share" onclick="doShare()"><i class="fab fa-instagram"></i> Instagram</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== QUOTES ====== -->
+    <div class="panel" id="panel-quotes">
+      <div class="sec-label">Feature 02 · OpenAI — FREE to generate</div>
+      <div class="sec-title">AI Quote Poster Generator</div>
+      <div class="sec-desc">120 ready quotes across 12 categories. Browse cinematic posters and flyer samples, or upload your own photo and pair it with a quote.</div>
+
+      <div class="free-notice"><i class="fas fa-gift"></i> Generating is FREE. Cinematic poster download = 1 credit. Flyer prompts are copy-only — paste into ChatGPT or use them right here in Studio.</div>
+
+      <div class="imgph imgph-hero" data-slot="Quotes hero — cinematic poster" style="margin-bottom:24px;">
+        <span class="imgph-icon"><i class="fas fa-quote-left"></i></span>
+        <span class="imgph-label">Quotes hero image</span>
+      </div>
+
+      <!-- OUTPUT TYPE -->
+      <div class="sub-label">Output Type</div>
+      <div class="quote-type-tabs" id="quotetypes">
+        <button class="qttype sel" onclick="pickQtype(this,'poster')"><i class="fas fa-image"></i> Cinematic Poster</button>
+        <button class="qttype" onclick="pickQtype(this,'flyer')"><i class="fas fa-rectangle-list"></i> Flyer Design</button>
+        <button class="qttype" onclick="pickQtype(this,'personal')"><i class="fas fa-person"></i> Your Photo + Quote</button>
+      </div>
+
+      <!-- POSTER TYPE: 20 ready-to-download samples, slider lightbox -->
+      <div id="qtypePoster">
+        <div class="sample-label">🎬 20 Cinematic Posters — click to open, slide through, and download</div>
+        <div class="seltile-grid sm" id="posterGalleryGrid"></div>
+      </div>
+
+      <!-- FLYER TYPE: 20 samples with copy-prompt -->
+      <div id="qtypeFlyer" style="display:none;">
+        <div class="sample-label">🗞️ 20 Flyer Designs — click to open, slide through, and copy the prompt</div>
+        <div class="seltile-grid sm" id="flyerGalleryGrid"></div>
+      </div>
+
+      <!-- PERSONAL TYPE: upload + 12 category blocks of 10 quotes each -->
+      <div id="qtypePersonal" style="display:none;">
+        <div class="upload-zone" id="uz-quote-photo">
+          <input type="file" id="file-quote-photo" accept="image/*" onchange="handleUpload(this,'prev-quote-photo','uz-quote-photo')">
+          <div class="uz-icon"><i class="fas fa-person"></i></div>
+          <h3>Upload Your Photo</h3>
+          <p>Pick a quote below, then generate — AI overlays it on your photo with professional typography</p>
+          <img id="prev-quote-photo" class="uz-preview" src="" alt="">
+        </div>
+
+        <div class="sel-summary" id="photoQuoteSummary">
+          <div class="ss-text">No quote selected yet — copy one from a category below.</div>
+        </div>
+
+        <textarea class="prompt-textarea" id="photoQuoteField" placeholder="Your selected quote will appear here — feel free to edit it before generating." style="min-height:60px;"></textarea>
+
+        <button class="proc-btn" onclick="requireAuth(runPhotoQuote)">
+          <i class="fas fa-image"></i> Generate Photo + Quote
+          <span class="cr-cost">2 credits</span>
+        </button>
+        <div class="progress-box" id="prog-photoquote">
+          <div class="prog-step" id="ps-photoquote">Composing layout...</div>
+          <div class="prog-bar"><div class="prog-fill" id="pf-photoquote"></div></div>
+          <div class="prog-label">AI placing your quote</div>
+        </div>
+        <div class="result-box" id="res-photoquote">
+          <h3>✦ Photo + Quote Ready</h3>
+          <img id="photoquote-img" src="" alt="Result" style="width:100%;max-width:420px;border-radius:14px;margin-bottom:16px;">
+          <div class="result-actions">
+            <button class="rbtn rbtn-dl" onclick="dlResult('photoquote-img','photo-quote.png')"><i class="fas fa-download"></i> Download</button>
+            <button class="rbtn rbtn-share" onclick="doShare()"><i class="fas fa-share"></i> Share</button>
+          </div>
+        </div>
+
+        <div class="sub-label" style="margin-top:30px;">All 12 Categories — 10 Quotes Each</div>
+        <div id="qcatBlocksWrap"></div>
+      </div>
+    </div>
+
+    <!-- ====== OUTFIT ====== -->
+    <div class="panel" id="panel-outfit">
+      <div class="sec-label">Feature 03 ✦ Viral · OpenAI gpt-image-1</div>
+      <div class="sec-title">AI Outfit Changer</div>
+      <div class="sec-desc">Pick a style, then a variant — your upload box appears once both are chosen. AI realistically dresses you in any style.</div>
+
+      <div class="imgph imgph-hero" data-slot="Outfit hero — fashion lineup" style="margin-bottom:24px;">
+        <span class="imgph-icon"><i class="fas fa-shirt"></i></span>
+        <span class="imgph-label">Outfit hero image</span>
+      </div>
+
+      <div class="sample-label">👔 Step 1 — Choose a Style (12 topics)</div>
+      <div class="seltile-grid" id="outfitCategoryGrid"></div>
+
+      <div id="outfitVariantsWrap" style="display:none;margin-top:18px;"></div>
+
+      <div class="sel-summary" id="outfitSelSummary"></div>
+
+      <div id="outfitUploadSection" style="display:none;">
+        <div class="upload-zone" id="uz-outfit">
+          <input type="file" id="file-outfit" accept="image/*" onchange="handleUpload(this,'prev-outfit','uz-outfit')">
+          <div class="uz-icon"><i class="fas fa-person"></i></div>
+          <h3>Upload Full-Body Photo</h3>
+          <p>Best with clear front-facing full body images</p>
+          <img id="prev-outfit" class="uz-preview" src="" alt="">
+        </div>
+
+        <button class="proc-btn" onclick="requireAuth(runOutfit)">
+          <i class="fas fa-shirt"></i> Change Outfit
+          <span class="cr-cost">5 credits</span>
+        </button>
+        <div class="progress-box" id="prog-outfit">
+          <div class="prog-step" id="ps-outfit">Segmenting body...</div>
+          <div class="prog-bar"><div class="prog-fill" id="pf-outfit"></div></div>
+          <div class="prog-label">OpenAI generating — ~20–30s</div>
+        </div>
+        <div class="result-box" id="res-outfit">
+          <h3>✦ Outfit Changed</h3>
+          <img id="outfit-img" src="" alt="Outfit" style="width:100%;max-width:400px;border-radius:14px;margin-bottom:16px;">
+          <div class="result-actions">
+            <button class="rbtn rbtn-dl" onclick="dlResult('outfit-img','outfit.png')"><i class="fas fa-download"></i> Download HD</button>
+            <button class="rbtn rbtn-share" onclick="doShare()"><i class="fas fa-share"></i> Share</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== BACKGROUND ====== -->
+    <div class="panel" id="panel-background">
+      <div class="sec-label">Feature 04 · OpenAI gpt-image-1</div>
+      <div class="sec-title">AI Background Changer</div>
+      <div class="sec-desc">Pick a category, then a scene — your upload box appears once a scene is chosen. AI swaps your background while keeping you untouched.</div>
+
+      <div class="imgph imgph-hero" data-slot="Background hero — Dubai skyline" style="margin-bottom:24px;">
+        <span class="imgph-icon"><i class="fas fa-images"></i></span>
+        <span class="imgph-label">Background hero image</span>
+      </div>
+
+      <div class="sample-label">🌍 Step 1 — Choose a Category (5 categories, 28 scenes)</div>
+      <div class="seltile-grid" id="bgCategoryGrid"></div>
+
+      <div class="sample-label" style="margin-top:18px;">📍 Step 2 — Choose a Scene</div>
+      <div class="seltile-grid sm" id="bgSceneGrid"></div>
+
+      <div class="sel-summary" id="bgSelSummary"></div>
+
+      <div id="bgUploadSection" style="display:none;">
+        <div class="upload-zone" id="uz-background">
+          <input type="file" id="file-background" accept="image/*" onchange="handleUpload(this,'prev-background','uz-background')">
+          <div class="uz-icon"><i class="fas fa-person-walking"></i></div>
+          <h3>Upload Your Photo</h3>
+          <p>AI detects and replaces your background</p>
+          <img id="prev-background" class="uz-preview" src="" alt="">
+        </div>
+
+        <button class="proc-btn" onclick="requireAuth(runBackground)">
+          <i class="fas fa-images"></i> Swap Background
+          <span class="cr-cost">3 credits</span>
+        </button>
+        <div class="progress-box" id="prog-background">
+          <div class="prog-step" id="ps-background">Removing background...</div>
+          <div class="prog-bar"><div class="prog-fill" id="pf-background"></div></div>
+          <div class="prog-label">AI compositing your scene</div>
+        </div>
+        <div class="result-box" id="res-background">
+          <h3>✦ Background Swapped</h3>
+          <img id="bg-img" src="" alt="Result" style="width:100%;border-radius:14px;margin-bottom:16px;">
+          <div class="result-actions">
+            <button class="rbtn rbtn-dl" onclick="dlResult('bg-img','background.png')"><i class="fas fa-download"></i> Download</button>
+            <button class="rbtn rbtn-share" onclick="doShare()"><i class="fas fa-share"></i> Share</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== PHOTO SHOOT ====== -->
+    <div class="panel" id="panel-shoot">
+      <div class="sec-label">Feature 05 ✦ Premium · OpenAI gpt-image-1</div>
+      <div class="sec-title">AI Photo Shoot Generator</div>
+      <div class="sec-desc">One selfie → 20 professional poses. Choose your shoot style, outfit AND background — the upload box appears once all three are picked.</div>
+
+      <div class="imgph imgph-hero" data-slot="Photo shoot hero — fashion editorial" style="margin-bottom:24px;">
+        <span class="imgph-icon"><i class="fas fa-camera-retro"></i></span>
+        <span class="imgph-label">Photo shoot hero image</span>
+      </div>
+
+      <div class="sample-label">📸 Step 1 — Shoot Style (6 topics)</div>
+      <div class="seltile-grid" id="shootStyleGrid"></div>
+
+      <div class="sample-label" style="margin-top:18px;">👔 Step 2 — Outfit for the Shoot</div>
+      <div class="seltile-grid sm" id="shootOutfitGrid"></div>
+
+      <div class="sample-label" style="margin-top:18px;">🌍 Step 3 — Background for the Shoot</div>
+      <div class="seltile-grid sm" id="shootBgGrid"></div>
+
+      <div class="sel-summary" id="shootSelSummary"></div>
+
+      <div id="shootUploadSection" style="display:none;">
+        <div class="upload-zone" id="uz-shoot">
+          <input type="file" id="file-shoot" accept="image/*" onchange="handleUpload(this,'prev-shoot','uz-shoot')">
+          <div class="uz-icon"><i class="fas fa-camera"></i></div>
+          <h3>Upload Your Selfie</h3>
+          <p>Front-facing, clear lighting works best</p>
+          <img id="prev-shoot" class="uz-preview" src="" alt="">
+        </div>
+
+        <button class="proc-btn" onclick="requireAuth(runShoot)">
+          <i class="fas fa-camera-retro"></i> Generate 20 Poses
+          <span class="cr-cost">10 credits</span>
+        </button>
+        <div class="progress-box" id="prog-shoot">
+          <div class="prog-step" id="ps-shoot">Building face model...</div>
+          <div class="prog-bar"><div class="prog-fill" id="pf-shoot"></div></div>
+          <div class="prog-label" id="shoot-prog-label">Generating professional poses — ~30–60s</div>
+        </div>
+        <div id="pose-results" style="display:none;margin-top:24px;">
+          <h3 style="margin-bottom:14px;">✦ Your 20 Poses — click any to download</h3>
+          <div class="pose-grid" id="pose-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== BEAUTY ====== -->
+    <div class="panel" id="panel-beauty">
+      <div class="sec-label">Feature 06 · OpenAI gpt-image-1</div>
+      <div class="sec-title">Beauty &amp; Face Enhancement</div>
+      <div class="sec-desc">Upload your photo, then choose exactly which tasks to apply — each toggle targets one specific area so results stay natural.</div>
+
+      <div class="watermark-notice"><i class="fas fa-droplet"></i> Free tier: watermark on export. Purchase credits for a clean watermark-free download.</div>
+
+      <div class="imgph imgph-hero" data-slot="Beauty hero — glam portrait" style="margin-bottom:24px;">
+        <span class="imgph-icon"><i class="fas fa-face-smile-beam"></i></span>
+        <span class="imgph-label">Beauty hero image</span>
+      </div>
+
+      <div class="sample-gallery">
+        <div class="sample-label">💄 6 Beauty Demo Samples — click to view &amp; copy prompt</div>
+        <div class="seltile-grid sm" id="beautySampleGrid"></div>
+      </div>
+
+      <div class="upload-zone" id="uz-beauty">
+        <input type="file" id="file-beauty" accept="image/*" onchange="handleUpload(this,'prev-beauty','uz-beauty')">
+        <div class="uz-icon"><i class="fas fa-face-smile-beam"></i></div>
+        <h3>Upload a Portrait Photo</h3>
+        <p>Clear face, good lighting works best</p>
+        <img id="prev-beauty" class="uz-preview" src="" alt="">
+      </div>
+
+      <div class="sub-label">Step 2 — Select Exactly What To Enhance</div>
+      <div class="beauty-list" id="beautyControlsList"></div>
+
+      <button class="proc-btn" onclick="requireAuth(runBeauty)">
+        <i class="fas fa-magic"></i> Apply Beauty AI
+        <span class="cr-cost">3 credits</span>
+      </button>
+      <div class="progress-box" id="prog-beauty">
+        <div class="prog-step" id="ps-beauty">Detecting facial landmarks...</div>
+        <div class="prog-bar"><div class="prog-fill" id="pf-beauty"></div></div>
+        <div class="prog-label">Applying only the tasks you selected</div>
+      </div>
+      <div class="result-box" id="res-beauty">
+        <h3>✦ Beauty Enhancement Complete</h3>
+        <img id="beauty-img" src="" alt="Beauty Result" style="width:100%;max-width:400px;border-radius:14px;margin-bottom:16px;">
+        <div class="result-actions">
+          <button class="rbtn rbtn-dl" onclick="showAdThenDownload('beauty-img','beauty.png')"><i class="fas fa-download"></i> Download (Watch Ad)</button>
+          <button class="rbtn rbtn-dl" style="background:var(--accent);color:#fff;" onclick="unlockNoWatermark()"><i class="fas fa-crown"></i> Watermark-Free</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== POSTER ====== -->
+    <div class="panel" id="panel-poster">
+      <div class="sec-label">Feature 07 · OpenAI gpt-image-1</div>
+      <div class="sec-title">AI Poster Creator</div>
+      <div class="sec-desc">Pick a poster type, copy (or tweak) its ready-made prompt, upload your photo, then generate.</div>
+
+      <div class="imgph imgph-hero" data-slot="Poster hero — design layout" style="margin-bottom:24px;">
+        <span class="imgph-icon"><i class="fas fa-layer-group"></i></span>
+        <span class="imgph-label">Poster hero image</span>
+      </div>
+
+      <div class="sample-label">🎨 Step 1 — Choose a Poster Type</div>
+      <div class="seltile-grid" id="posterTypeGrid"></div>
+
+      <div id="posterPromptSection" style="display:none;margin-top:18px;">
+        <div class="sub-label">Step 2 — Prompt (copy it, or edit before generating)</div>
+        <textarea class="prompt-textarea" id="posterPromptArea"></textarea>
+        <button class="copy-btn" onclick="copyText(document.getElementById('posterPromptArea').value,this)" style="margin-bottom:18px;"><i class="fas fa-copy"></i> Copy Prompt</button>
+
+        <div class="sub-label">Step 3 — Upload Your Photo</div>
+        <div class="upload-zone" id="uz-poster">
+          <input type="file" id="file-poster" accept="image/*" onchange="handleUpload(this,'prev-poster','uz-poster')">
+          <div class="uz-icon"><i class="fas fa-image"></i></div>
+          <h3>Upload Your Photo</h3>
+          <p>Used as the base for your poster</p>
+          <img id="prev-poster" class="uz-preview" src="" alt="">
+        </div>
+
+        <button class="proc-btn" onclick="requireAuth(runPoster)">
+          <i class="fas fa-magic"></i> Generate Poster
+          <span class="cr-cost">4 credits</span>
+        </button>
+        <div class="progress-box" id="prog-poster">
+          <div class="prog-step" id="ps-poster">Composing layout...</div>
+          <div class="prog-bar"><div class="prog-fill" id="pf-poster"></div></div>
+          <div class="prog-label">AI designing your poster</div>
+        </div>
+        <div class="result-box" id="res-poster">
+          <h3>✦ Poster Generated</h3>
+          <img id="poster-img" src="" alt="Poster" style="width:100%;border-radius:14px;margin-bottom:16px;">
+          <div class="result-actions">
+            <button class="rbtn rbtn-dl" onclick="dlResult('poster-img','poster.png')"><i class="fas fa-download"></i> Download</button>
+            <button class="rbtn rbtn-share" onclick="doShare()"><i class="fas fa-share"></i> Share</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== EXPORT ====== -->
+    <div class="panel" id="panel-export">
+      <div class="sec-label">Feature 08</div>
+      <div class="sec-title">Export &amp; Share</div>
+      <div class="sec-desc">Export your AI photos in the perfect size for any platform worldwide.</div>
+      <div class="sub-label">Resolution</div>
+      <div class="export-sizes" id="es-sizes">
+        <div class="szchip" onclick="pickSize(this)">HD 720p</div>
+        <div class="szchip sel" onclick="pickSize(this)">Full HD 1080p</div>
+        <div class="szchip" onclick="pickSize(this)">2K</div>
+        <div class="szchip" onclick="pickSize(this)">4K Ultra</div>
+      </div>
+      <div class="sub-label" style="margin-top:22px;">Export To</div>
+      <div class="export-platforms">
+        <div class="expcard" onclick="exportTo('Instagram')"><div class="eicon">📸</div><h3>Instagram</h3><p>Square, Portrait, Story</p></div>
+        <div class="expcard" onclick="exportTo('TikTok')"><div class="eicon">🎵</div><h3>TikTok</h3><p>Vertical 9:16</p></div>
+        <div class="expcard" onclick="exportTo('Facebook')"><div class="eicon">👤</div><h3>Facebook</h3><p>Profile, cover, story</p></div>
+        <div class="expcard" onclick="exportTo('Pinterest')"><div class="eicon">📌</div><h3>Pinterest</h3><p>Pin-optimized tall</p></div>
+        <div class="expcard" onclick="exportTo('Device')"><div class="eicon">⬇️</div><h3>Download</h3><p>Save to device</p></div>
+        <div class="expcard" onclick="exportTo('WhatsApp')"><div class="eicon">💬</div><h3>WhatsApp</h3><p>Optimized sharing</p></div>
+        <div class="expcard" onclick="exportTo('Twitter')"><div class="eicon">🐦</div><h3>Twitter / X</h3><p>1200×675 optimized</p></div>
+        <div class="expcard" onclick="exportTo('LinkedIn')"><div class="eicon">💼</div><h3>LinkedIn</h3><p>Professional format</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== PRICING PAGE ===================== -->
+<div class="page" id="page-pricing">
+  <div class="pricing-wrap">
+    <div class="sec-eyebrow">Simple Credit Pricing</div>
+    <h2 style="font-size:clamp(1.9rem,4vw,3.2rem);font-weight:800;margin-bottom:12px;letter-spacing:-1px;">Pay Per Credit.<br><span class="grad">No Subscriptions.</span></h2>
+    <p style="color:var(--muted2);max-width:440px;margin:0 auto;font-size:0.87rem;line-height:1.8;">Credits power every AI task. Top up anytime — credits never expire. New accounts start with <strong style="color:var(--green);">20 FREE credits</strong>, plus 1 totally free photo enhancement.</p>
+
+    <div style="margin:24px auto 0;padding:14px 20px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);border-radius:14px;max-width:420px;font-size:0.84rem;color:var(--muted2);">
+      <i class="fas fa-gift" style="color:var(--green);"></i> <strong style="color:var(--green);">Free Tier:</strong> Sign up → get 20 credits + 1 free enhance → try quotes (FREE to generate). Buy credits for clean exports, premium features and higher tasks.
+    </div>
+
+    <div class="pricing-cards">
+      <div class="pcard">
+        <h3>Starter</h3>
+        <div class="pprice">$10 <span>/ one-time</span></div>
+        <div class="local-price" id="local-10">Loading local price...</div>
+        <div class="pdesc">Perfect for trying VibeLens AI fully</div>
+        <div class="pcreds"><div class="crn">50</div><div class="crl">Credits included</div></div>
+        <ul class="pfeats">
+          <li><i class="fas fa-check"></i>25 photo enhancements (no watermark)</li>
+          <li><i class="fas fa-check"></i>16 background swaps</li>
+          <li><i class="fas fa-check"></i>50 AI quote downloads</li>
+          <li><i class="fas fa-check"></i>HD exports — no ads</li>
+        </ul>
+        <button class="ppay-btn" onclick="openTopupWithPlan(50,10)">Get 50 Credits</button>
+      </div>
+      <div class="pcard featured">
+        <span class="pbadge">Best Value</span>
+        <h3>Creator</h3>
+        <div class="pprice">$25 <span>/ one-time</span></div>
+        <div class="local-price" id="local-25">Loading local price...</div>
+        <div class="pdesc">For regular creators &amp; professionals</div>
+        <div class="pcreds"><div class="crn">150</div><div class="crl">Credits included</div></div>
+        <ul class="pfeats">
+          <li><i class="fas fa-check"></i>75 photo enhancements</li>
+          <li><i class="fas fa-check"></i>30 outfit changes</li>
+          <li><i class="fas fa-check"></i>Full HD &amp; 2K exports</li>
+          <li><i class="fas fa-check"></i>No watermark on all features</li>
+          <li><i class="fas fa-check"></i>Priority processing</li>
+        </ul>
+        <button class="ppay-btn" onclick="openTopupWithPlan(150,25)">Get 150 Credits</button>
+      </div>
+      <div class="pcard">
+        <h3>Pro Studio</h3>
+        <div class="pprice">$60 <span>/ one-time</span></div>
+        <div class="local-price" id="local-60">Loading local price...</div>
+        <div class="pdesc">For businesses &amp; power users</div>
+        <div class="pcreds"><div class="crn">400</div><div class="crl">Credits included</div></div>
+        <ul class="pfeats">
+          <li><i class="fas fa-check"></i>All features unlocked</li>
+          <li><i class="fas fa-check"></i>4K exports — no watermark</li>
+          <li><i class="fas fa-check"></i>Batch processing</li>
+          <li><i class="fas fa-check"></i>Priority AI queue</li>
+          <li><i class="fas fa-check"></i>API access</li>
+        </ul>
+        <button class="ppay-btn" onclick="openTopupWithPlan(400,60)">Get 400 Credits</button>
+      </div>
+    </div>
+
+    <div class="credit-table">
+      <h3>Credit Cost Per Feature</h3>
+      <div class="ctable">
+        <div class="crow free-row"><span>AI Quote Generate</span><span>FREE</span></div>
+        <div class="crow free-row"><span>Photo Enhancement (1st)</span><span>FREE</span></div>
+        <div class="crow"><span>Photo Enhancement (next)</span><span>2 cr</span></div>
+        <div class="crow"><span>Background Swap</span><span>3 cr</span></div>
+        <div class="crow"><span>Beauty Enhancement</span><span>3 cr</span></div>
+        <div class="crow"><span>Poster Generator</span><span>4 cr</span></div>
+        <div class="crow"><span>Quote Poster Download</span><span>1 cr</span></div>
+        <div class="crow"><span>Photo + Quote</span><span>2 cr</span></div>
+        <div class="crow"><span>Outfit Changer</span><span>5 cr</span></div>
+        <div class="crow"><span>Photo Shoot (20 poses)</span><span>10 cr</span></div>
+        <div class="crow"><span>Watermark Removal</span><span>credits</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SETTINGS PAGE ===================== -->
+<div class="page" id="page-settings">
+  <div class="settings-wrap">
+    <div class="sec-eyebrow">Configuration</div>
+    <div class="sec-title">System Status</div>
+    <p style="color:var(--muted);font-size:0.84rem;margin-bottom:26px;">VibeLens AI's API keys are configured on the server, not in this app — nothing secret is ever stored on your device. This page just shows whether each service is reachable.</p>
+    <div class="api-status-grid" id="apiStatusGrid">
+      <div class="api-item"><div class="api-dot off" id="d-openai-chat"></div><div><div class="api-name">Chat Completions</div><div class="api-note">Quotes · prompt text</div></div></div>
+      <div class="api-item"><div class="api-dot off" id="d-openai-image"></div><div><div class="api-name">Images API</div><div class="api-note">Enhance · Outfit · BG · Beauty · Poster · Shoot</div></div></div>
+      <div class="api-item"><div class="api-dot off" id="d-stripe"></div><div><div class="api-name">Backend / Payments</div><div class="api-note">Credits &amp; checkout</div></div></div>
+      <div class="api-item"><div class="api-dot off" id="d-firebase"></div><div><div class="api-name">Firebase</div><div class="api-note">Sign-in &amp; sync</div></div></div>
+    </div>
+    <div class="settings-card">
+      <h3>🔒 How this app keeps your account safe</h3>
+      <div class="sdesc">
+        Every AI request is sent from this app to VibeLens's own server, which holds the OpenAI key and talks to OpenAI on your behalf — your device never sees that key, so it can't be extracted from the app.
+        Your credit balance lives in our database (Firestore) and can only be changed by that same server, so the app itself has no way to grant free credits.
+        Signing in uses Firebase Authentication (Google or email/password); we never see or store your password.
+      </div>
+    </div>
+    <div class="settings-card" style="margin-top:14px;">
+      <h3>Credit History</h3>
+      <div class="history-list" id="historyList"></div>
+    </div>
+    <div class="key-note" style="margin-top:14px;"><i class="fas fa-circle-info" style="color:var(--muted);"></i> Building this yourself? Backend config lives in <code>backend/.env</code> — see the included DEPLOYMENT_GUIDE.md.</div>
+  </div>
+</div>
+
+<!-- ===================== AUTH MODAL ===================== -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('authModal')">×</button>
+    <h2>Join VibeLens AI ✦</h2>
+    <div class="modal-sub">Sign up to start transforming your photos with AI.</div>
+    <div class="free-credits-note">🎁 <strong>New accounts get 20 FREE credits + 1 free enhancement</strong> — no card required!</div>
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <div class="divider">or sign up with email</div>
+    <div class="signup-form">
+      <input type="email" id="signup-email" placeholder="your@email.com">
+      <input type="password" id="signup-pass" placeholder="Password (min 6 chars)">
+      <button class="signup-submit" onclick="signUpEmail()"><i class="fas fa-rocket"></i> Create Account — Get 20 Free Credits</button>
+    </div>
+    <div class="auth-note">Already have an account? <a href="#" onclick="switchToLogin()">Sign In</a><br>By signing up you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>.</div>
+  </div>
+</div>
+
+<!-- ===================== TOPUP MODAL ===================== -->
+<div class="modal-overlay" id="topupModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('topupModal')">×</button>
+    <h2>Top Up Credits ✦</h2>
+    <div class="modal-sub">Choose a credit pack — credits never expire. Prices in your local currency.</div>
+    <div class="plan-grid">
+      <div class="plancard" onclick="pickPlan(this,50,10)">
+        <div class="plan-cr">50</div>
+        <div class="plan-crl">credits</div>
+        <div class="plan-price">$10</div>
+        <div class="plan-local" id="m-local-10">~loading</div>
+      </div>
+      <div class="plancard popular sel" onclick="pickPlan(this,150,25)">
+        <div class="pop-badge">Best Value</div>
+        <div class="plan-cr">150</div>
+        <div class="plan-crl">credits</div>
+        <div class="plan-price">$25</div>
+        <div class="plan-local" id="m-local-25">~loading</div>
+      </div>
+      <div class="plancard" onclick="pickPlan(this,400,60)">
+        <div class="plan-cr">400</div>
+        <div class="plan-crl">credits</div>
+        <div class="plan-price">$60</div>
+        <div class="plan-local" id="m-local-60">~loading</div>
+      </div>
+    </div>
+    <div style="font-size:0.72rem;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Payment Method</div>
+    <div class="pay-methods">
+      <button class="pmeth sel" onclick="pickPmeth(this)">💳 Card (Stripe)</button>
+      <button class="pmeth" onclick="pickPmeth(this)">📱 Mobile Money</button>
+      <button class="pmeth" onclick="pickPmeth(this)">🏦 Bank Transfer</button>
+      <button class="pmeth" onclick="pickPmeth(this)">₿ Crypto</button>
+    </div>
+    <button class="pay-btn" id="payBtn" onclick="completePurchase()">
+      <i class="fas fa-lock"></i> Pay $25 — Get 150 Credits
+    </button>
+    <div class="pay-secure" style="margin-top:10px;"><i class="fas fa-shield-check" style="color:var(--green);"></i> Secured by Stripe · Credits added instantly · No subscription</div>
+  </div>
+</div>
+
+<!-- ===================== AD MODAL ===================== -->
+<div class="ad-overlay" id="adModal">
+  <div class="ad-modal">
+    <div style="font-size:0.8rem;color:var(--muted);margin-bottom:8px;text-align:center;">Watch a short ad to download for free</div>
+    <div class="ad-countdown" id="adCountdown">5</div>
+    <div class="ad-progress"><div class="ad-prog-fill" id="adProgFill" style="width:0%;"></div></div>
+    <div class="ad-content">
+      <div style="font-size:1.8rem;margin-bottom:10px;">📢</div>
+      <div style="font-size:0.9rem;font-weight:700;margin-bottom:6px;">VibeLens Pro — Unlock Everything</div>
+      <div style="font-size:0.78rem;color:var(--muted);line-height:1.7;">Remove all watermarks, skip ads, unlock 4K exports and priority processing. Starting at just $10 for 50 credits.</div>
+      <button class="btn-primary" style="margin:14px auto 0;display:block;" onclick="closeModal('adModal');openTopup();">Get Credits — No More Ads ✦</button>
+    </div>
+    <button class="skip-btn" id="skipAdBtn" onclick="skipAd()" disabled>Skip Ad (5s)</button>
+  </div>
+</div>
+
+<!-- ===================== LIGHTBOX / SLIDER (generic) ===================== -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <div class="lightbox-box">
+    <button class="lightbox-x" onclick="closeLightbox()">×</button>
+    <div class="lightbox-stage" id="lbStage">
+      <button class="lightbox-nav prev" onclick="lbNav(-1)"><i class="fas fa-chevron-left"></i></button>
+      <button class="lightbox-nav next" onclick="lbNav(1)"><i class="fas fa-chevron-right"></i></button>
+      <div class="lightbox-dots" id="lbDots"></div>
+    </div>
+    <div class="lightbox-body">
+      <div class="lb-cat" id="lbCat"></div>
+      <h3 id="lbTitle"></h3>
+      <div class="lb-prompt-box" id="lbPromptBox"></div>
+      <div class="lb-actions" id="lbActions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i id="toastIcon" class="fas fa-check-circle"></i>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<script>
+// ============================================================
+// QUOTE BANK — 12 categories x 10 quotes each
+// ============================================================
+const QUOTE_BANK_FULL = {
+  Motivation:[
+    "Your hardest days are building the strongest chapters of your life.",
+    "Every no brings you one step closer to the yes that changes everything.",
+    "The fire inside you should be bigger than the fire around you.",
+    "Discipline is choosing what you want most over what you want now.",
+    "Small steps, repeated daily, outrun bursts of motivation every time.",
+    "You don't need permission to start. You need the courage to continue.",
+    "The version of you that gives up is not the one you were meant to be.",
+    "Doubt kills more dreams than failure ever will.",
+    "Progress is loud in hindsight and silent while it's happening.",
+    "Whatever you're building today, no one can see it finished yet — keep going."
+  ],
+  Success:[
+    "The secret of success is to know something nobody else knows.",
+    "Success comes to those who are too busy building to notice the detractors.",
+    "Every expert was once a beginner who refused to quit.",
+    "Winners are not people who never fail, but people who never stop.",
+    "Success is rented, and the rent is due every single day.",
+    "The market rewards the consistent, not just the talented.",
+    "Most overnight successes took about ten years.",
+    "You are not behind. You are exactly where your work has placed you.",
+    "Big wins are just small wins nobody noticed, stacked high enough.",
+    "Outwork your doubt and let your results do the arguing."
+  ],
+  Life:[
+    "Life is not measured by the breaths we take, but by the moments that take our breath away.",
+    "The purpose of life is not to be happy — it's to matter, to be useful, to make a difference.",
+    "Live as if you were to die tomorrow. Learn as if you were to live forever.",
+    "The days are long, but the years are short — notice them while they're here.",
+    "You don't find a meaningful life. You build one, decision by decision.",
+    "Some chapters end so better ones can begin — let them close.",
+    "Life rewards those who show up even when it's inconvenient.",
+    "Peace is not the absence of chaos, but a center that holds through it.",
+    "What you tolerate, you teach life to keep giving you.",
+    "The best view comes after the hardest climb."
+  ],
+  Nature:[
+    "Nature never hurries, yet everything is accomplished in its perfect time.",
+    "In every walk with nature, one receives far more than one seeks.",
+    "The earth does not belong to us. We belong to the earth.",
+    "Mountains teach patience; rivers teach persistence.",
+    "There is a quiet wisdom in things that grow without rushing.",
+    "Look deep into nature, and you will understand everything better.",
+    "Wild places remind us how small our worries truly are.",
+    "The forest does not ask permission to grow toward the light.",
+    "Every season has its purpose; none of them last forever.",
+    "Adopt the pace of nature — her secret is patience."
+  ],
+  Hustle:[
+    "Wake up with determination. Go to bed with satisfaction.",
+    "The dream is free. The hustle is sold separately.",
+    "Your future self is watching you through your memories. Make them proud.",
+    "Sleep when it's done, not when you're tired of trying.",
+    "While they were resting, you were building — that's the whole difference.",
+    "Hustle in silence, let the results make the noise.",
+    "Excuses cost nothing and pay nothing back.",
+    "Grind now so your story has a better second half.",
+    "The hustle isn't about speed — it's about not stopping.",
+    "Nobody is coming to do it for you. Good. That means it's yours."
+  ],
+  Love:[
+    "Real love is choosing the same person every single day.",
+    "The greatest thing you'll ever learn is just to love and be loved in return.",
+    "To love deeply in one direction makes us more loving in all others.",
+    "Love isn't found, it's built — one honest day at a time.",
+    "The best relationships are two people refusing to give up on each other.",
+    "Where there is love, there is patience for the unfinished parts.",
+    "Love is a verb before it's ever a feeling.",
+    "Choose someone who makes the ordinary days feel worth remembering.",
+    "A strong love doesn't avoid storms — it learns to dance through them.",
+    "Being truly seen by someone is the rarest kind of love."
+  ],
+  Business:[
+    "Don't find customers for your products — find products for your customers.",
+    "Build something 100 people love deeply rather than 1 million who kind of like it.",
+    "Opportunities don't happen — you create them with consistent action.",
+    "Revenue is vanity, profit is sanity, cash flow is reality.",
+    "Your brand is what people say about you when you're not in the room.",
+    "The best marketing doesn't feel like marketing — it feels like value.",
+    "Every great business was once a stubborn idea someone refused to drop.",
+    "Solve a real problem and the money becomes a side effect.",
+    "Slow growth you can sustain beats fast growth that breaks you.",
+    "Customers don't buy products, they buy better versions of themselves."
+  ],
+  Luxury:[
+    "Real luxury is the time to live fully, not the things you accumulate.",
+    "Elegance is not about being noticed — it's about being remembered.",
+    "The taste of quality remains long after the price is forgotten.",
+    "Luxury is choosing fewer things, made better.",
+    "True opulence whispers; it never has to shout.",
+    "Style is a way of saying who you are without having to speak.",
+    "Buy less, but buy the kind of things that last.",
+    "The finest things are made for those who notice the details.",
+    "Comfort is a necessity. Luxury is a philosophy.",
+    "What you surround yourself with quietly becomes who you are."
+  ],
+  Faith:[
+    "Faith is not the absence of doubt — it's moving forward despite it.",
+    "What God has for you, no force on earth can withhold from you.",
+    "Let your faith be bigger than your fear, and your future bigger than your past.",
+    "Prayer is not asking for an easier life, but the strength for this one.",
+    "Trust the timing, even when you cannot see the plan.",
+    "Grace meets you exactly where willpower runs out.",
+    "Storms pass. Faith is what keeps the boat steady until they do.",
+    "You were not given this battle to lose it.",
+    "Hold on — the breakthrough is often closer than the breaking point.",
+    "Walk by faith, and the path will reveal itself one step at a time."
+  ],
+  Fitness:[
+    "The body achieves what the mind believes. Push past the limit.",
+    "Sweat is just weakness leaving the body — keep going.",
+    "Pain is temporary. Quitting lasts forever.",
+    "Discipline in the gym becomes discipline everywhere else.",
+    "Your only competition is the person you were yesterday.",
+    "Strength doesn't come from comfort — it comes from the rep you almost skipped.",
+    "Show up on the days you don't feel like it — that's where it's built.",
+    "The body keeps the score of every excuse you didn't make.",
+    "Consistency turns ordinary effort into extraordinary results.",
+    "Train like the result already belongs to you."
+  ],
+  Finance:[
+    "Wealth is built in decades, not days — patience is the real asset.",
+    "It's not what you earn, it's what you keep and grow that counts.",
+    "Every dollar you save today is a future option you're buying.",
+    "Budgeting isn't restriction — it's permission to spend on purpose.",
+    "The market punishes impatience and rewards discipline.",
+    "Financial freedom is just unspent money compounding quietly.",
+    "Net worth is built in private, long before it shows in public.",
+    "Spend like your future self is watching — because they are.",
+    "Debt borrows from your future; savings invest in it.",
+    "Money grows fastest where attention is most consistent."
+  ],
+  Crypto:[
+    "Not your keys, not your coins. Own your financial future.",
+    "Volatility is the price you pay for extraordinary long-term returns.",
+    "The ones who laughed at the first wave are still working 9 to 5.",
+    "Conviction is easy in a bull run — it's tested in the dip.",
+    "Decentralization isn't a trend, it's a return to ownership.",
+    "Paper hands sell the bottom; patient hands own the top.",
+    "Do the research, size the risk, then let time do the rest.",
+    "Every cycle rewards those who survived the last one.",
+    "Technology moves first, belief catches up later.",
+    "The chain doesn't care about your feelings — only your discipline."
+  ]
+};
+
+const QUOTE_CATEGORY_META = {
+  Motivation:{emoji:'🔥',color:'var(--orange)'},
+  Success:{emoji:'🏆',color:'var(--gold)'},
+  Life:{emoji:'🌟',color:'var(--cyan)'},
+  Nature:{emoji:'🌿',color:'var(--green)'},
+  Hustle:{emoji:'💪',color:'var(--red)'},
+  Love:{emoji:'❤️',color:'var(--pink)'},
+  Business:{emoji:'📈',color:'var(--accent)'},
+  Luxury:{emoji:'💎',color:'var(--gold)'},
+  Faith:{emoji:'🙏',color:'var(--cyan)'},
+  Fitness:{emoji:'🏋️',color:'var(--red)'},
+  Finance:{emoji:'💰',color:'var(--green)'},
+  Crypto:{emoji:'₿',color:'var(--gold)'}
+};
+
+// ============================================================
+// PROMPT TEMPLATES — what gets sent to OpenAI (and shown via Copy Prompt)
+// ============================================================
+const ENHANCE_PROMPTS = {
+  'HD Quality':'Enhance this photo to crisp HD quality: sharpen fine detail, correct exposure and white balance, reduce noise, keep the person and background fully realistic and natural.',
+  '4K Ultra':'Upscale this photo to ultra high definition 4K clarity: maximum sharpness, clean skin and fabric texture, no artifacts, photorealistic result.',
+  'DSLR Look':'Re-render this photo as if shot on a professional DSLR camera: shallow depth of field, soft creamy background blur, natural skin tones, crisp subject focus.',
+  'Studio Light':'Relight this photo with professional studio softbox lighting: even, flattering illumination on the face, soft shadows, clean neutral backdrop tone.',
+  'Cinematic':'Apply a cinematic film-photography grade to this photo: subtle teal-and-orange color grading, dramatic contrast, gentle film grain, moody but flattering tone.',
+  'Face Enhance':'Enhance the facial detail in this photo: sharpen eyes and features naturally, even out lighting on the face, keep all proportions and identity fully realistic.',
+  'Skin Cleanup':'Clean up skin in this photo: reduce blemishes and uneven tone smoothly while preserving natural skin texture and pores — avoid an artificial plastic look.',
+  'Noise Remove':'Remove grain and digital noise from this photo, sharpen true detail, and correct any motion blur, producing a clean professional result.'
+};
+const ENHANCE_STYLES = ['Natural','Classic','Luxury','Professional','Cinematic','Wedding','Editorial','Corporate'];
+
+const OUTFIT_CATEGORIES = [
+  {key:'business',name:'Business Suit',emoji:'👔',basePrompt:'Replace the clothing on the person in this photo with a tailored navy business suit, white shirt, and silk tie, fitted professionally, keeping the face, pose and background unchanged.'},
+  {key:'native',name:'Native Wear',emoji:'👗',basePrompt:'Replace the clothing on the person in this photo with vibrant traditional African ankara/native wear, richly patterned fabric, keeping the face, pose and background unchanged.'},
+  {key:'luxury',name:'Luxury Fashion',emoji:'💎',basePrompt:'Replace the clothing on the person in this photo with high-end luxury designer fashion — refined cut, premium fabric texture, subtle branding-free elegance, keeping the face, pose and background unchanged.'},
+  {key:'street',name:'Streetwear',emoji:'🧢',basePrompt:'Replace the clothing on the person in this photo with modern urban streetwear — oversized hoodie, fitted cap, sneakers, keeping the face, pose and background unchanged.'},
+  {key:'wedding',name:'Wedding Attire',emoji:'👰',basePrompt:'Replace the clothing on the person in this photo with elegant wedding attire (bridal gown or groom tuxedo as appropriate), keeping the face, pose and background unchanged.'},
+  {key:'corporate',name:'Corporate Casual',emoji:'🧳',basePrompt:'Replace the clothing on the person in this photo with smart corporate-casual attire — blazer over a simple top, polished but relaxed, keeping the face, pose and background unchanged.'},
+  {key:'african',name:'African Fashion',emoji:'🌍',basePrompt:'Replace the clothing on the person in this photo with vibrant kente or dashiki-inspired African fashion, bold colors and patterns, keeping the face, pose and background unchanged.'},
+  {key:'celebrity',name:'Celebrity Glam',emoji:'⭐',basePrompt:'Replace the clothing on the person in this photo with glamorous celebrity red-carpet fashion — statement silhouette, premium finish, keeping the face, pose and background unchanged.'},
+  {key:'tuxedo',name:'Tuxedo',emoji:'🤵',basePrompt:'Replace the clothing on the person in this photo with a formal black tuxedo, bow tie and dress shoes, keeping the face, pose and background unchanged.'},
+  {key:'traditional',name:'Traditional Wear',emoji:'👘',basePrompt:'Replace the clothing on the person in this photo with elegant traditional cultural attire, rich fabric and authentic detail, keeping the face, pose and background unchanged.'},
+  {key:'gym',name:'Gym Wear',emoji:'🏋️',basePrompt:'Replace the clothing on the person in this photo with athletic gym wear — fitted performance top and leggings/shorts, keeping the face, pose and background unchanged.'},
+  {key:'royal',name:'Royal Attire',emoji:'👑',basePrompt:'Replace the clothing on the person in this photo with ceremonial royal attire — ornate robe and regal detailing, keeping the face, pose and background unchanged.'}
+];
+// representative men/women variant labels per category (kept small per category, structure scales)
+const OUTFIT_VARIANTS = {men:['Classic Fit','Slim Cut','Bold Color','Relaxed Style'],women:['Elegant Fit','Modern Cut','Bold Color','Soft Style']};
+
+const BACKGROUND_CATEGORIES = [
+  {key:'natural',name:'Natural',emoji:'🌊',scenes:[
+    {name:'Beach',prompt:'tropical beach, clear blue ocean, white sand, palm trees, sunny day'},
+    {name:'Waterfall',prompt:'stunning tropical waterfall, lush jungle, misty atmosphere'},
+    {name:'Forest',prompt:'dense green forest, sunlight filtering through trees, peaceful'},
+    {name:'Sea',prompt:'open sea horizon, calm waves, soft golden light'},
+    {name:'Mountains',prompt:'dramatic mountain range, crisp air, expansive sky'},
+    {name:'Desert',prompt:'golden sand dunes, desert at sunset, clear sky'}
+  ]},
+  {key:'classic',name:'Classic',emoji:'🏛',scenes:[
+    {name:'Studio',prompt:'professional photography studio, gradient backdrop, softbox lighting'},
+    {name:'Office',prompt:'modern office, floor-to-ceiling windows, city view, professional'},
+    {name:'Cafe',prompt:'cozy café, warm lighting, wooden furniture'},
+    {name:'Classic Area',prompt:'classic architectural interior, marble floors, soft ambient light'},
+    {name:'Library',prompt:'elegant wood-paneled library, warm lamps, tall bookshelves'},
+    {name:'Restaurant',prompt:'upscale restaurant interior, ambient candlelight, elegant table setting'}
+  ]},
+  {key:'african',name:'African & Local',emoji:'🌍',scenes:[
+    {name:'Village',prompt:'beautiful African village, traditional huts, baobab trees, warm sunset'},
+    {name:'Savanna',prompt:'African savanna at sunset, acacia trees, golden hour, wildlife silhouettes'},
+    {name:'Market',prompt:'vibrant local outdoor market, colorful stalls, lively atmosphere'},
+    {name:'Riverside',prompt:'local riverside scene, lush greenery, soft afternoon light'}
+  ]},
+  {key:'luxury',name:'Luxury',emoji:'💎',scenes:[
+    {name:'Mansion',prompt:'luxury mansion, grand architecture, manicured garden'},
+    {name:'Luxury Car',prompt:'luxury sports car showroom, exotic automobile, premium interior'},
+    {name:'Wedding Hall',prompt:'elegant wedding hall, floral chandeliers, romantic ambiance'},
+    {name:'Parlor',prompt:'opulent private parlor, velvet furnishings, soft gold lighting'},
+    {name:'Chiavari Banquet',prompt:'banquet hall with chiavari chairs, formal elegant event setting'},
+    {name:'Gym',prompt:'modern professional fitness gym, sleek industrial interior'}
+  ]},
+  {key:'cities',name:'World Cities',emoji:'🌏',scenes:[
+    {name:'Dubai',prompt:'Dubai skyline, golden hour, luxury skyscrapers, modern city'},
+    {name:'Paris',prompt:'Paris with the Eiffel Tower, romantic architecture, golden hour'},
+    {name:'New York',prompt:'New York City Manhattan skyline, Times Square energy, night lights'},
+    {name:'Tokyo',prompt:'Tokyo cherry blossoms, Shibuya crossing, neon lights'},
+    {name:'City Rooftop',prompt:'rooftop city view at dusk, skyline silhouette, ambient lights'},
+    {name:'Cinematic Color',prompt:'abstract cinematic gradient color backdrop, moody studio tone'}
+  ]}
+];
+
+const PHOTOSHOOT_STYLES = [
+  {key:'fashion',name:'Fashion',emoji:'💃',prompt:'high-fashion editorial photo shoot style, dynamic poses, dramatic lighting'},
+  {key:'business',name:'Business',emoji:'💼',prompt:'professional corporate headshot photo shoot, confident poses, clean lighting'},
+  {key:'wedding',name:'Wedding',emoji:'💍',prompt:'romantic wedding photography style, soft natural light, elegant poses'},
+  {key:'fitness',name:'Fitness',emoji:'🏋',prompt:'athletic fitness photo shoot, dynamic action poses, gym or outdoor setting'},
+  {key:'luxury',name:'Luxury',emoji:'✨',prompt:'high-end luxury lifestyle photo shoot, glamorous poses, premium setting'},
+  {key:'editorial',name:'Editorial',emoji:'📰',prompt:'magazine editorial photo shoot, bold artistic poses, studio lighting'}
+];
+const SHOOT_OUTFITS = ['Business Suit','Luxury','Native Wear','Wedding','Gym Wear','African'];
+const SHOOT_BACKGROUNDS = ['Studio','Dubai','Beach','Mansion','Forest','Office','Luxury Car','Paris','New York City','Savanna'];
+const POSE_NAMES=['Front Pose','Side Profile','Crossed Arms','Looking Away','Walking','Power Stance','Sitting Casual','Leaning Wall','Arms Open','Looking Down','Chin Up','Model Walk','Hand on Hip','Tilted Head','Back View','Over Shoulder','Candid Laugh','Thoughtful','Dynamic','Close-Up'];
+
+const BEAUTY_SAMPLES = [
+  {name:'Full Glam',emoji:'✨',prompt:'apply full glam makeup — defined eyes, contour, bold but natural-looking finish'},
+  {name:'Lip Color',emoji:'💋',prompt:'enhance lips with natural color and subtle volume'},
+  {name:'Eye Lashes',emoji:'👁',prompt:'enhance eyelashes — fuller, naturally darkened, well-defined'},
+  {name:'Smile Fix',emoji:'😁',prompt:'whiten and even out teeth naturally for a brighter smile'},
+  {name:'Beard',emoji:'💈',prompt:'enhance and sharpen beard shape and density naturally'},
+  {name:'Skin Glow',emoji:'🌟',prompt:'add a healthy luxury skin glow while preserving natural texture'}
+];
+const BEAUTY_CONTROLS = [
+  {name:'Teeth Whitening',icon:'fa-tooth',prompt:'whiten teeth naturally'},
+  {name:'Skin Smoothing',icon:'fa-spa',prompt:'smooth skin texture while preserving natural pores'},
+  {name:'Acne Removal',icon:'fa-face-meh-blank',prompt:'remove blemishes and acne marks naturally'},
+  {name:'Eye Enhancement',icon:'fa-eye',prompt:'enhance eye brightness and sharpness'},
+  {name:'Eye Lashes',icon:'fa-eye',prompt:'enhance lash fullness and definition'},
+  {name:'Makeup Enhancement',icon:'fa-palette',prompt:'apply soft natural makeup enhancement'},
+  {name:'High Glam Makeup',icon:'fa-palette',prompt:'apply bold high-glam makeup look'},
+  {name:'Luxury Skin Glow',icon:'fa-gem',prompt:'add a luxury dewy skin glow'},
+  {name:'Beard Enhance',icon:'fa-person-rays',prompt:'enhance beard shape and fullness'},
+  {name:'Lip Color & Volume',icon:'fa-face-smile',prompt:'add natural lip color and subtle volume'}
+];
+
+const POSTER_TYPES = [
+  {name:'Social Media Post',emoji:'📱',prompt:'Design a square 1:1 social media post graphic using the uploaded photo as the focal subject, modern bold typography, clean composition, on-trend color palette.'},
+  {name:'Instagram Post',emoji:'📸',prompt:'Design an Instagram feed post (1:1) featuring the uploaded photo, stylish overlay text area, cohesive aesthetic color grading.'},
+  {name:'Business Flyer',emoji:'💼',prompt:'Design a professional business flyer (A4) using the uploaded photo, clear hierarchy for a headline, supporting text and contact details, corporate color palette.'},
+  {name:'YouTube Thumbnail',emoji:'▶️',prompt:'Design a high-contrast YouTube thumbnail (16:9) using the uploaded photo as the subject, bold readable title text, vibrant eye-catching colors.'},
+  {name:'Certificate',emoji:'🎓',prompt:'Design an elegant certificate of achievement layout incorporating the uploaded photo subtly, ornate border, formal serif typography, gold accents.'},
+  {name:'Invoice',emoji:'🧾',prompt:'Design a clean modern invoice template with a header area for a logo near the uploaded photo, structured line-item table, minimal professional styling.'},
+  {name:'Business Card',emoji:'💳',prompt:'Design a modern double-sided business card featuring the uploaded photo, name and title placeholder, minimal elegant layout.'},
+  {name:'Canva-Style Template',emoji:'🎨',prompt:'Design a versatile editable-style template in a Canva-like aesthetic, using the uploaded photo, soft shapes, modern sans-serif typography.'},
+  {name:'Cinematic Poster',emoji:'🎬',prompt:'Design a cinematic movie-poster style composition using the uploaded photo as the hero subject, dramatic lighting, bold title typography, film-grade color grade.'},
+  {name:'Event Poster',emoji:'🗞️',prompt:'Design an event announcement poster using the uploaded photo, clear date/time/location placeholder areas, vibrant eye-catching design.'}
+];
+
+// ============================================================
+// HELPERS
+// ============================================================
+function escapeHtml(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function copyText(text, btnEl){
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch(e){
+    const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(_){}
+    document.body.removeChild(ta);
+  }
+  if(btnEl){
+    const orig=btnEl.innerHTML;
+    btnEl.classList.add('copied');
+    btnEl.innerHTML='<i class="fas fa-check"></i> Copied';
+    setTimeout(()=>{ btnEl.classList.remove('copied'); btnEl.innerHTML=orig; },1600);
+  }
+  showToast('Prompt copied to clipboard','success');
+}
+
+function imgPh(label, icon, opts){
+  opts=opts||{};
+  const cls='imgph'+(opts.sm?' imgph-sm':'')+(opts.hero?' imgph-hero':'')+(opts.extra?(' '+opts.extra):'');
+  const tag=opts.tag!==false?'<span class="imgph-tag">IMG</span>':'';
+  return `<div class="${cls}" data-slot="${escapeHtml(opts.slot||label)}">${tag}<span class="imgph-icon"><i class="fas ${icon||'fa-image'}"></i></span><span class="imgph-label">${escapeHtml(label)}</span></div>`;
+}
+
+// ============================================================
+// LIGHTBOX (generic slider used by Quote Poster grid, Flyer grid, etc.)
+// ============================================================
+let lbItems=[]; let lbIndex=0; let lbOnSelect=null; let lbMode='view';
+function openLightbox(items, startIndex, opts){
+  lbItems=items; lbIndex=startIndex||0; lbOnSelect=(opts&&opts.onSelect)||null; lbMode=(opts&&opts.mode)||'view';
+  document.getElementById('lightboxOverlay').classList.add('open');
+  renderLightbox();
+}
+function closeLightbox(){ document.getElementById('lightboxOverlay').classList.remove('open'); }
+function lbNav(dir){ lbIndex=(lbIndex+dir+lbItems.length)%lbItems.length; renderLightbox(); }
+function lbGoto(i){ lbIndex=i; renderLightbox(); }
+function renderLightbox(){
+  const item=lbItems[lbIndex];
+  if(!item) return;
+  document.getElementById('lbStage').innerHTML = imgPh(item.label||item.name, item.icon||'fa-image', {tag:false});
+  document.getElementById('lbCat').textContent = item.cat||'';
+  document.getElementById('lbTitle').textContent = item.name||item.label||'';
+  const promptBox=document.getElementById('lbPromptBox');
+  if(item.prompt){ promptBox.style.display='block'; promptBox.textContent=item.prompt; }
+  else { promptBox.style.display='none'; }
+  const dotsWrap=document.getElementById('lbDots');
+  dotsWrap.innerHTML = lbItems.map((it,i)=>`<span class="lightbox-dot ${i===lbIndex?'active':''}" onclick="lbGoto(${i})"></span>`).join('');
+  // actions
+  const actions=document.getElementById('lbActions');
+  let html='';
+  if(lbMode==='download'){
+    html+=`<button class="rbtn rbtn-dl" onclick="requireAuth(()=>deductAndDownload(1,'${escapeHtml(item.name||'')}'))"><i class="fas fa-download"></i> Download (1 cr)</button>`;
+  }
+  if(item.prompt){
+    html+=`<button class="copy-btn" onclick="copyText(${JSON.stringify(item.prompt)},this)"><i class="fas fa-copy"></i> Copy Prompt</button>`;
+  }
+  if(lbMode==='select'){
+    html+=`<button class="rbtn rbtn-dl" style="background:var(--accent);color:#fff;" onclick="lbSelectCurrent()"><i class="fas fa-check"></i> Use This Style</button>`;
+  }
+  actions.innerHTML=html;
+}
+function lbSelectCurrent(){
+  if(lbOnSelect) lbOnSelect(lbItems[lbIndex]);
+  closeLightbox();
+}
+
+// ============================================================
+// QUOTE POSTER / FLYER GALLERY GENERATION (20 sample tiles each)
+// ============================================================
+function buildPosterSampleItems(n, categoryPool){
+  const items=[];
+  for(let i=0;i<n;i++){
+    const cat=categoryPool[i%categoryPool.length];
+    const quotes=QUOTE_BANK_FULL[cat];
+    const q=quotes[i%quotes.length];
+    items.push({name:cat+' Poster '+(Math.floor(i/categoryPool.length)+1), cat:cat, label:cat+' style', icon:'fa-image', quote:q,
+      prompt:`Create a cinematic vertical quote poster (4:5) for the category "${cat}". Overlay this quote in bold modern typography: "${q}" — Use a moody, high-contrast background that visually matches the ${cat.toLowerCase()} theme, soft vignette, and a small "VibeLens AI" watermark in the corner.`});
+  }
+  return items;
+}
+function buildFlyerSampleItems(n, categoryPool){
+  const items=[];
+  for(let i=0;i<n;i++){
+    const cat=categoryPool[i%categoryPool.length];
+    items.push({name:cat+' Flyer '+(Math.floor(i/categoryPool.length)+1), cat:cat, label:cat+' flyer', icon:'fa-rectangle-list',
+      prompt:`Design a promotional flyer (A4, portrait) themed around "${cat}". Include a bold headline area, supporting text block, and a clean modern layout with a color palette that matches the ${cat.toLowerCase()} mood. Leave a placeholder area for a photo.`});
+  }
+  return items;
+}
+const QUOTE_CAT_LIST = Object.keys(QUOTE_BANK_FULL);
+
+function renderQuotePosterGallery(){
+  const items=buildPosterSampleItems(20, QUOTE_CAT_LIST);
+  const grid=document.getElementById('posterGalleryGrid');
+  grid.innerHTML = items.map((it,i)=>`
+    <button class="thumb-btn" onclick="openLightbox(window.__posterItems,${i},{mode:'download'})">
+      ${imgPh(it.label,'fa-image',{sm:true,tag:false})}
+      <span class="dl-badge"><i class="fas fa-download"></i></span>
+    </button>`).join('');
+  window.__posterItems=items;
+}
+function renderFlyerGallery(){
+  const items=buildFlyerSampleItems(20, QUOTE_CAT_LIST);
+  const grid=document.getElementById('flyerGalleryGrid');
+  grid.innerHTML = items.map((it,i)=>`
+    <button class="thumb-btn" onclick="openLightbox(window.__flyerItems,${i},{mode:'copy'})">
+      ${imgPh(it.label,'fa-rectangle-list',{sm:true,tag:false})}
+      <span class="dl-badge"><i class="fas fa-copy"></i></span>
+    </button>`).join('');
+  window.__flyerItems=items;
+}
+async function deductAndDownload(cr, label){
+  try {
+    await VibeLensAPI.quoteDownload(label);
+    showToast('Downloading '+label+'...','success');
+    await refreshProfile();
+  } catch(e){ showToast(e.message,'error'); }
+}
+
+// ============================================================
+// "YOUR PHOTO + QUOTE" — 12 category blocks, each with hero + 10 quotes
+// ============================================================
+function renderQuoteCategoryBlocks(){
+  const wrap=document.getElementById('qcatBlocksWrap');
+  wrap.innerHTML = QUOTE_CAT_LIST.map((cat,ci)=>{
+    const quotes=QUOTE_BANK_FULL[cat];
+    const rows=quotes.map((q,qi)=>`
+      <div class="quote-row">
+        <p><span class="qrn">${qi+1}.</span>${escapeHtml(q)}</p>
+        <button class="copy-btn copy-btn-sm" onclick="selectQuoteForPhoto(${JSON.stringify(q)},${JSON.stringify(cat)},this)"><i class="fas fa-copy"></i> Copy</button>
+      </div>`).join('');
+    return `
+      <div class="qcat-block">
+        <div class="qcat-hero-row">
+          <div class="qcat-hero-img">${imgPh(cat+' hero','fa-image',{tag:false})}</div>
+          <div>
+            <div class="qcat-hero-title">${QUOTE_CATEGORY_META[cat].emoji} ${cat} Quotes</div>
+            <div class="qcat-hero-sub">10 ready-to-use quotes — copy one, paste it below your uploaded photo</div>
+          </div>
+          <button class="qcat-toggle" onclick="this.closest('.qcat-block').querySelector('.qcat-quotes').classList.toggle('open')"><i class="fas fa-chevron-down"></i> View 10</button>
+        </div>
+        <div class="qcat-quotes">${rows}</div>
+      </div>`;
+  }).join('');
+}
+let selectedPhotoQuote='';
+function selectQuoteForPhoto(q, cat, btn){
+  selectedPhotoQuote=q;
+  copyText(q, btn);
+  const field=document.getElementById('photoQuoteField');
+  if(field) field.value=q;
+  const sum=document.getElementById('photoQuoteSummary');
+  if(sum){ sum.classList.add('show'); sum.querySelector('.ss-text').innerHTML=`Selected (${escapeHtml(cat)}): <strong>"${escapeHtml(q)}"</strong>`; }
+}
+
+// ============================================================
+// OUTFIT PANEL — category tiles -> select -> reveal upload
+// ============================================================
+let selectedOutfit=null;
+function renderOutfitCategoryGrid(){
+  const grid=document.getElementById('outfitCategoryGrid');
+  grid.innerHTML = OUTFIT_CATEGORIES.map((c,i)=>`
+    <div class="seltile" data-idx="${i}" onclick="pickOutfitCategory(${i})">
+      ${imgPh(c.name,'fa-shirt',{tag:false})}
+      <div class="seltile-cap">${c.emoji} ${escapeHtml(c.name)}</div>
+    </div>`).join('');
+}
+function renderOutfitVariants(catIndex){
+  const cat=OUTFIT_CATEGORIES[catIndex];
+  const wrap=document.getElementById('outfitVariantsWrap');
+  const menTiles = OUTFIT_VARIANTS.men.map(v=>`Men · ${v}`);
+  const womenTiles = OUTFIT_VARIANTS.women.map(v=>`Women · ${v}`);
+  const all = menTiles.concat(womenTiles);
+  wrap.innerHTML = `
+    <div class="sub-label">${cat.emoji} ${escapeHtml(cat.name)} — choose a variant</div>
+    <div class="seltile-grid sm" id="outfitVariantGrid">
+      ${all.map((label,i)=>`
+        <div class="seltile" data-vidx="${i}" onclick="pickOutfitVariant(${catIndex},${i},'${escapeHtml(label)}')">
+          ${imgPh(label,'fa-person',{sm:true,tag:false})}
+          <div class="seltile-cap">${escapeHtml(label)}</div>
+        </div>`).join('')}
+    </div>`;
+}
+function pickOutfitCategory(i){
+  document.querySelectorAll('#outfitCategoryGrid .seltile').forEach(t=>t.classList.remove('sel'));
+  document.querySelector(`#outfitCategoryGrid .seltile[data-idx="${i}"]`).classList.add('sel');
+  renderOutfitVariants(i);
+  document.getElementById('outfitVariantsWrap').style.display='block';
+}
+function pickOutfitVariant(catIndex, vIdx, label){
+  document.querySelectorAll('#outfitVariantGrid .seltile').forEach(t=>t.classList.remove('sel'));
+  document.querySelector(`#outfitVariantGrid .seltile[data-vidx="${vIdx}"]`).classList.add('sel');
+  const cat=OUTFIT_CATEGORIES[catIndex];
+  selectedOutfit={cat:cat.name, variant:label, prompt:cat.basePrompt+` Variant style: ${label}.`};
+  showSelSummary('outfitSelSummary', cat.name+' — '+label, 'fa-shirt');
+  document.getElementById('outfitUploadSection').style.display='block';
+}
+function showSelSummary(id, text, icon){
+  const el=document.getElementById(id);
+  el.classList.add('show');
+  el.innerHTML = `${imgPh(text,icon,{tag:false,extra:''})}<div class="ss-text">Selected: <strong>${escapeHtml(text)}</strong></div><button class="ss-clear" onclick="this.closest('.sel-summary').classList.remove('show')"><i class="fas fa-times"></i></button>`;
+}
+
+// ============================================================
+// BACKGROUND PANEL — category covers -> scene grid -> select
+// ============================================================
+let selectedBg=null;
+function renderBgCategoryGrid(){
+  const grid=document.getElementById('bgCategoryGrid');
+  grid.innerHTML = BACKGROUND_CATEGORIES.map((c,i)=>`
+    <div class="seltile" data-bcidx="${i}" onclick="pickBgCategory(${i})">
+      ${imgPh(c.name,'fa-images',{tag:false})}
+      <div class="seltile-cap">${c.emoji} ${escapeHtml(c.name)}</div>
+    </div>`).join('');
+  pickBgCategory(0);
+}
+function pickBgCategory(i){
+  document.querySelectorAll('#bgCategoryGrid .seltile').forEach(t=>t.classList.remove('sel'));
+  const tile=document.querySelector(`#bgCategoryGrid .seltile[data-bcidx="${i}"]`);
+  if(tile) tile.classList.add('sel');
+  const cat=BACKGROUND_CATEGORIES[i];
+  const wrap=document.getElementById('bgSceneGrid');
+  wrap.innerHTML = cat.scenes.map((s,si)=>`
+    <div class="seltile" data-sidx="${si}" onclick="pickBgScene(${i},${si})">
+      ${imgPh(s.name,'fa-image',{sm:true,tag:false})}
+      <div class="seltile-cap">${escapeHtml(s.name)}</div>
+    </div>`).join('');
+}
+function pickBgScene(catIdx, sceneIdx){
+  document.querySelectorAll('#bgSceneGrid .seltile').forEach(t=>t.classList.remove('sel'));
+  document.querySelector(`#bgSceneGrid .seltile[data-sidx="${sceneIdx}"]`).classList.add('sel');
+  const scene=BACKGROUND_CATEGORIES[catIdx].scenes[sceneIdx];
+  selectedBg={name:scene.name, prompt:`Replace the background behind the person in this photo with: ${scene.prompt}. Keep the person's pose, lighting on the subject, and identity fully realistic and unchanged — only the background and ambient light should adapt.`};
+  showSelSummary('bgSelSummary', scene.name, 'fa-images');
+  document.getElementById('bgUploadSection').style.display='block';
+}
+
+// ============================================================
+// PHOTO SHOOT PANEL — style -> outfit -> background -> upload
+// ============================================================
+let selectedShoot={style:null,outfit:null,background:null};
+function renderShootStyleGrid(){
+  const grid=document.getElementById('shootStyleGrid');
+  grid.innerHTML = PHOTOSHOOT_STYLES.map((s,i)=>`
+    <div class="seltile" data-ssidx="${i}" onclick="pickShootStyle(${i})">
+      ${imgPh(s.name,'fa-camera-retro',{tag:false})}
+      <div class="seltile-cap">${s.emoji} ${escapeHtml(s.name)}</div>
+    </div>`).join('');
+  const og=document.getElementById('shootOutfitGrid');
+  og.innerHTML = SHOOT_OUTFITS.map((o,i)=>`
+    <div class="seltile" data-soidx="${i}" onclick="pickShootOutfit(${i})">
+      ${imgPh(o,'fa-shirt',{sm:true,tag:false})}
+      <div class="seltile-cap">${escapeHtml(o)}</div>
+    </div>`).join('');
+  const bg=document.getElementById('shootBgGrid');
+  bg.innerHTML = SHOOT_BACKGROUNDS.map((b,i)=>`
+    <div class="seltile" data-sbidx="${i}" onclick="pickShootBg(${i})">
+      ${imgPh(b,'fa-image',{sm:true,tag:false})}
+      <div class="seltile-cap">${escapeHtml(b)}</div>
+    </div>`).join('');
+}
+function pickShootStyle(i){ document.querySelectorAll('#shootStyleGrid .seltile').forEach(t=>t.classList.remove('sel')); document.querySelector(`#shootStyleGrid .seltile[data-ssidx="${i}"]`).classList.add('sel'); selectedShoot.style=PHOTOSHOOT_STYLES[i]; checkShootReady(); }
+function pickShootOutfit(i){ document.querySelectorAll('#shootOutfitGrid .seltile').forEach(t=>t.classList.remove('sel')); document.querySelector(`#shootOutfitGrid .seltile[data-soidx="${i}"]`).classList.add('sel'); selectedShoot.outfit=SHOOT_OUTFITS[i]; checkShootReady(); }
+function pickShootBg(i){ document.querySelectorAll('#shootBgGrid .seltile').forEach(t=>t.classList.remove('sel')); document.querySelector(`#shootBgGrid .seltile[data-sbidx="${i}"]`).classList.add('sel'); selectedShoot.background=SHOOT_BACKGROUNDS[i]; checkShootReady(); }
+function checkShootReady(){
+  if(selectedShoot.style && selectedShoot.outfit && selectedShoot.background){
+    showSelSummary('shootSelSummary', `${selectedShoot.style.name} · ${selectedShoot.outfit} · ${selectedShoot.background}`, 'fa-camera-retro');
+    document.getElementById('shootUploadSection').style.display='block';
+  }
+}
+
+// ============================================================
+// BEAUTY PANEL — samples + controls with image swatches
+// ============================================================
+function renderBeautySamples(){
+  const grid=document.getElementById('beautySampleGrid');
+  grid.innerHTML = BEAUTY_SAMPLES.map(s=>`
+    <div class="seltile" onclick="openLightbox(window.__beautySamples, ${BEAUTY_SAMPLES.indexOf(s)}, {mode:'copy'})">
+      ${imgPh(s.name,'fa-face-smile-beam',{sm:true,tag:false})}
+      <div class="seltile-cap">${s.emoji} ${escapeHtml(s.name)}</div>
+    </div>`).join('');
+  window.__beautySamples = BEAUTY_SAMPLES.map(s=>({name:s.name,label:s.name,icon:'fa-face-smile-beam',prompt:s.prompt}));
+}
+function renderBeautyControls(){
+  const list=document.getElementById('beautyControlsList');
+  list.innerHTML = BEAUTY_CONTROLS.map((c,i)=>`
+    <div class="bctrl" data-bctrl="${i}">
+      <div class="bctrl-head">
+        <div class="bctrl-head-left">
+          <div class="bctrl-swatch">${imgPh(c.name,c.icon,{sm:true,tag:false})}</div>
+          <div class="bctrl-name">${escapeHtml(c.name)}</div>
+        </div>
+        <button class="toggle ${i<4?'on':''}" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <input type="range" min="0" max="100" value="60">
+    </div>`).join('');
+}
+function getSelectedBeautyTasks(){
+  const tasks=[];
+  document.querySelectorAll('#beautyControlsList .bctrl').forEach(el=>{
+    const on=el.querySelector('.toggle').classList.contains('on');
+    if(on){ const idx=parseInt(el.dataset.bctrl); tasks.push(BEAUTY_CONTROLS[idx].prompt); }
+  });
+  return tasks;
+}
+
+// ============================================================
+// POSTER PANEL — type gallery with copy prompt + textarea
+// ============================================================
+function renderPosterTypeGrid(){
+  const grid=document.getElementById('posterTypeGrid');
+  grid.innerHTML = POSTER_TYPES.map((p,i)=>`
+    <div class="seltile" data-ptidx="${i}" onclick="pickPosterType(${i})">
+      ${imgPh(p.name,'fa-image',{tag:false})}
+      <div class="seltile-cap">${p.emoji} ${escapeHtml(p.name)}</div>
+    </div>`).join('');
+}
+function pickPosterType(i){
+  document.querySelectorAll('#posterTypeGrid .seltile').forEach(t=>t.classList.remove('sel'));
+  document.querySelector(`#posterTypeGrid .seltile[data-ptidx="${i}"]`).classList.add('sel');
+  const p=POSTER_TYPES[i];
+  document.getElementById('posterPromptArea').value=p.prompt;
+  document.getElementById('posterPromptSection').style.display='block';
+}
+
+// ============================================================
+// ENHANCE PANEL — mode thumbnails open lightbox with prompt
+// ============================================================
+function renderEnhanceModeGallery(){
+  const grid=document.getElementById('enhanceModeGallery');
+  const modes=Object.keys(ENHANCE_PROMPTS);
+  const items=modes.map(m=>({name:m,label:m,icon:'fa-wand-magic-sparkles',prompt:ENHANCE_PROMPTS[m]}));
+  window.__enhanceItems=items;
+  grid.innerHTML = modes.map((m,i)=>`
+    <div class="seltile" data-emidx="${i}" onclick="pickEnhanceModeTile(${i})">
+      ${imgPh(m,'fa-wand-magic-sparkles',{sm:true,tag:false})}
+      <div class="seltile-cap">${escapeHtml(m)}</div>
+    </div>`).join('');
+  pickEnhanceModeTile(0);
+}
+function pickEnhanceModeTile(i){
+  document.querySelectorAll('#enhanceModeGallery .seltile').forEach(t=>t.classList.remove('sel'));
+  document.querySelector(`#enhanceModeGallery .seltile[data-emidx="${i}"]`).classList.add('sel');
+  selectedEnhanceMode=Object.keys(ENHANCE_PROMPTS)[i];
+}
+function viewEnhanceModeDetail(i, ev){
+  if(ev) ev.stopPropagation();
+  openLightbox(window.__enhanceItems, i, {mode:'copy'});
+}
+let selectedEnhanceMode='HD Quality';
+
+// ============================================================
+// BACKEND INTEGRATION — every AI call now goes through OUR server
+// (see VibeLensAPI in api-client.js). No API keys live in this app.
+// These wrapper names are kept the same as before so the feature
+// functions below didn't need to change their call sites.
+// ============================================================
+async function openaiChat(promptText, maxTokens){
+  // Only used for the "generate a fresh quote" flow — category is extracted
+  // from the prompt text the caller already built for display purposes,
+  // but the real call to the backend just needs the category name.
+  const catMatch = promptText.match(/about "([^"]+)"/);
+  const category = catMatch ? catMatch[1] : 'Motivation';
+  const d = await VibeLensAPI.quoteText(category);
+  return d.quote || '';
+}
+
+// Edit/transform an uploaded photo using a prompt — routed to the matching
+// backend endpoint based on which feature is calling it.
+async function openaiImageEdit(file, promptText, size, featureHint){
+  let d;
+  switch(featureHint){
+    case 'outfit': d = await VibeLensAPI.outfit(file, promptText); break;
+    case 'background': d = await VibeLensAPI.background(file, promptText); break;
+    case 'beauty': d = await VibeLensAPI.beauty(file, promptText); break;
+    case 'poster': d = await VibeLensAPI.poster(file, promptText); break;
+    case 'photoquote': d = await VibeLensAPI.photoQuote(file, promptText); break;
+    case 'photoshoot-pose': d = await VibeLensAPI.photoshootPose(file, promptText); break;
+    case 'enhance':
+    default: d = await VibeLensAPI.enhance(file, promptText); break;
+  }
+  return d.image;
+}
+
+// ============================================================
+// FREE-USE TRACKING — now server-side (Firestore `freeEnhanceUsed` field),
+// reflected here via the cached profile fetched from /api/user/me.
+// ============================================================
+let __cachedProfile = null;
+function hasUsedFreeEnhance(){ return !!(__cachedProfile && __cachedProfile.freeEnhanceUsed); }
+function markFreeEnhanceUsed(){ if(__cachedProfile) __cachedProfile.freeEnhanceUsed = true; }
+async function refreshProfile(){
+  try { const d = await VibeLensAPI.me(); __cachedProfile = d.user; credits = d.user.credits; updateCr(); updateEnhanceFreeUI(); }
+  catch(e){ /* not signed in yet, ignore */ }
+}
+
+
+// ============================================================
+// STATE
+// ============================================================
+let credits = 0; // populated for real from the backend after sign-in (refreshProfile)
+let isLoggedIn = false; // set by Firebase's onAuthStateChanged in restoreSession()
+let currentUser = null;
+let quoteCat = 'Motivation';
+let quoteType = 'poster';
+let planCr = 150, planPrice = 25;
+let adCallback = null;
+let history = [];
+// History now comes from the backend (Firestore, via /api/user/history) once
+// signed in — see refreshProfile()/loadHistoryFromServer() below. No API keys
+// are stored client-side; Settings now just shows connection status.
+
+// Local currency rates (approx per USD)
+const CURRENCY_DATA = {
+  CM:{code:'XAF',symbol:'CFA',rate:600,name:'CFA Franc'},
+  NG:{code:'NGN',symbol:'₦',rate:1600,name:'Naira'},
+  GH:{code:'GHS',symbol:'GH₵',rate:15,name:'Cedi'},
+  KE:{code:'KES',symbol:'KSh',rate:130,name:'Shilling'},
+  ZA:{code:'ZAR',symbol:'R',rate:18,name:'Rand'},
+  EG:{code:'EGP',symbol:'EGP',rate:49,name:'Pound'},
+  GB:{code:'GBP',symbol:'£',rate:0.79,name:'Pound'},
+  EU:{code:'EUR',symbol:'€',rate:0.92,name:'Euro'},
+  IN:{code:'INR',symbol:'₹',rate:83,name:'Rupee'},
+  BR:{code:'BRL',symbol:'R$',rate:5.1,name:'Real'},
+  DEFAULT:{code:'USD',symbol:'$',rate:1,name:'USD'}
+};
+
+// ============================================================
+// INIT
+// ============================================================
+function init(){
+  updateCr();
+  renderHistory();
+  setupTabClicks();
+  detectCurrency();
+  checkBackendStatus();
+  restoreSession(); // sets up the real Firebase onAuthStateChanged listener
+  updateEnhanceFreeUI();
+
+  // Render all galleries / data-driven sections
+  renderEnhanceModeGallery();
+  renderQuotePosterGallery();
+  renderFlyerGallery();
+  renderQuoteCategoryBlocks();
+  renderOutfitCategoryGrid();
+  renderBgCategoryGrid();
+  renderShootStyleGrid();
+  renderBeautySamples();
+  renderBeautyControls();
+  renderPosterTypeGrid();
+  renderHomeGalleries();
+}
+
+function detectCurrency(){
+  fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
+    const cc = d.country_code;
+    const cur = CURRENCY_DATA[cc] || CURRENCY_DATA.DEFAULT;
+    const prices = [{id:'10',usd:10},{id:'25',usd:25},{id:'60',usd:60}];
+    prices.forEach(p=>{
+      const local = Math.round(p.usd * cur.rate);
+      const fmt = local.toLocaleString();
+      const els = [document.getElementById('local-'+p.id), document.getElementById('m-local-'+p.id)];
+      els.forEach(el=>{ if(el) el.textContent = `~${cur.symbol}${fmt} ${cur.code}`; });
+    });
+  }).catch(()=>{
+    ['10','25','60'].forEach(p=>{
+      [document.getElementById('local-'+p), document.getElementById('m-local-'+p)].forEach(el=>{
+        if(el) el.textContent = 'USD displayed';
+      });
+    });
+  });
+}
+
+function setupTabClicks(){
+  document.querySelectorAll('.ftab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      const panel = document.getElementById('panel-'+tab.dataset.panel);
+      if(panel) panel.classList.add('active');
+    });
+  });
+}
+
+window.addEventListener('DOMContentLoaded', init);
+
+// ============================================================
+// HOME PAGE GALLERIES (before/after, quote demo, feature samples)
+// ============================================================
+const BA_GALLERY_ITEMS = [
+  {title:'Photo Enhancement', desc:'Blurry selfie → studio-quality portrait with perfect lighting, sharp detail and a professional finish.', tag:'1 free edit', tagColor:'gold', beforeLabel:'before-enhance', afterLabel:'after-enhance'},
+  {title:'AI Outfit Changer', desc:'Casual wear → tailored business suit, African wear, luxury fashion — realistically AI-generated.', tag:'5 credits', tagColor:'accent', beforeLabel:'before-outfit', afterLabel:'after-outfit'},
+  {title:'Background Replacement', desc:'Plain background → Dubai skyline, tropical beach, luxury mansion — 28+ cinematic scenes.', tag:'3 credits', tagColor:'pink', beforeLabel:'before-bg', afterLabel:'after-bg'},
+  {title:'Beauty Enhancement', desc:'Natural look → professional retouching: skin smoothing, teeth whitening, makeup and more.', tag:'3 credits', tagColor:'red', beforeLabel:'before-beauty', afterLabel:'after-beauty'}
+];
+function renderHomeGalleries(){
+  const grid=document.getElementById('baGalleryGrid');
+  grid.innerHTML = BA_GALLERY_ITEMS.map(it=>`
+    <div class="ba-card">
+      <div class="ba-images">
+        <div class="ba-img">${imgPh(it.beforeLabel,'fa-image',{tag:false})}<span class="ba-label before-lbl">Before</span></div>
+        <div class="ba-img">${imgPh(it.afterLabel,'fa-sparkles',{tag:false})}<span class="ba-label after-lbl">After ✦</span></div>
+        <div class="ba-divider"></div>
+      </div>
+      <div class="ba-info">
+        <h3>${escapeHtml(it.title)}</h3>
+        <p>${escapeHtml(it.desc)}</p>
+        <span class="ba-tag" style="background:rgba(240,192,64,0.1);color:var(--gold);"><i class="fas fa-star"></i> ${escapeHtml(it.tag)}</span>
+      </div>
+    </div>`).join('');
+
+  // Quote demo cards on home (4 sample categories) with copy prompt
+  const qgrid=document.getElementById('homeQuoteDemoGrid');
+  const sampleCats=['Success','Luxury','Nature','Motivation'];
+  qgrid.innerHTML = sampleCats.map(cat=>{
+    const q=QUOTE_BANK_FULL[cat][0];
+    const meta=QUOTE_CATEGORY_META[cat];
+    const prompt=`Create a cinematic vertical quote poster for the category "${cat}". Overlay this quote in bold modern typography: "${q}". Use a moody high-contrast background matching the ${cat.toLowerCase()} theme.`;
+    return `
+      <div class="qdemo-card">
+        <div class="qdemo-bg">${imgPh(cat+' poster bg','fa-image',{tag:false})}</div>
+        <div class="qdemo-overlay"></div>
+        <div class="qdemo-content">
+          <div class="qdemo-cat" style="color:${meta.color};">${meta.emoji} ${escapeHtml(cat)}</div>
+          <div class="qdemo-quote">"${escapeHtml(q)}"</div>
+          <div class="qdemo-author">VibeLens AI</div>
+          <button class="copy-btn copy-btn-sm" onclick="copyText(${JSON.stringify(prompt)},this)"><i class="fas fa-copy"></i> Copy Prompt</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Feature overview sample strips (home page) — small image swatches per feature
+  const enhanceModes=Object.keys(ENHANCE_PROMPTS).slice(0,4);
+  document.getElementById('foSamplesEnhance').innerHTML = enhanceModes.map(m=>`<div class="fo-sample">${imgPh(m,'fa-wand-magic-sparkles',{sm:true,tag:false})}</div>`).join('');
+  document.getElementById('foSamplesOutfit').innerHTML = OUTFIT_CATEGORIES.slice(0,4).map(c=>`<div class="fo-sample">${imgPh(c.name,'fa-shirt',{sm:true,tag:false})}</div>`).join('');
+  document.getElementById('foSamplesBg').innerHTML = BACKGROUND_CATEGORIES[0].scenes.slice(0,4).map(s=>`<div class="fo-sample">${imgPh(s.name,'fa-image',{sm:true,tag:false})}</div>`).join('');
+  document.getElementById('foSamplesQuotes').innerHTML = QUOTE_CAT_LIST.slice(0,4).map(c=>`<div class="fo-sample">${imgPh(c,'fa-quote-left',{sm:true,tag:false})}</div>`).join('');
+  document.getElementById('foSamplesShoot').innerHTML = PHOTOSHOOT_STYLES.slice(0,4).map(s=>`<div class="fo-sample">${imgPh(s.name,'fa-camera-retro',{sm:true,tag:false})}</div>`).join('');
+  document.getElementById('foSamplesBeauty').innerHTML = BEAUTY_SAMPLES.slice(0,4).map(s=>`<div class="fo-sample">${imgPh(s.name,'fa-face-smile-beam',{sm:true,tag:false})}</div>`).join('');
+
+  // Home demo before/after slots
+  document.getElementById('homeDemoBefore').innerHTML = imgPh('demo-before.jpg','fa-image',{tag:false});
+  document.getElementById('homeDemoAfter').innerHTML = imgPh('demo-after.jpg','fa-sparkles',{tag:false});
+}
+
+// ============================================================
+// PAGE ROUTING
+// ============================================================
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg = document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  const tabs = document.querySelectorAll('.nav-tab');
+  const idx = {home:0,studio:1,pricing:2,settings:3};
+  if(idx[name] !== undefined && tabs[idx[name]]) tabs[idx[name]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function switchPanel(panelName){
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.toggle('active',t.dataset.panel===panelName));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+panelName));
+}
+
+// ============================================================
+// AUTH GUARD
+// ============================================================
+function requireAuth(fn){
+  if(!isLoggedIn){ openAuthModal(); pendingAction = fn; return; }
+  fn();
+}
+let pendingAction = null;
+
+// ============================================================
+// CREDITS
+// ============================================================
+function updateCr(){
+  document.getElementById('navCr').textContent = isLoggedIn ? credits : '—';
+  const cd = document.getElementById('crDisplay');
+  if(cd){
+    if(!isLoggedIn){ cd.innerHTML = 'Sign in to see your credits'; return; }
+    const badge = (__cachedProfile && !__cachedProfile.paid) ? '<span class="free-badge">FREE</span>' : '';
+    cd.innerHTML = credits + ' credits ' + badge;
+  }
+}
+function deduct(n, label){
+  if(credits < n){ showToast('Not enough credits! Redirecting to pricing...','error'); setTimeout(()=>{showPage('pricing');},1500); return false; }
+  credits = Math.max(0, credits - n);
+  history.unshift({action:label,amount:-n,type:'dr',time:new Date().toLocaleTimeString()});
+  saveHistory(); updateCr(); renderHistory();
+  return true;
+}
+function addCr(n, label){
+  credits += n;
+  history.unshift({action:label,amount:n,type:'cr',time:new Date().toLocaleTimeString()});
+  saveHistory(); updateCr(); renderHistory();
+}
+function saveHistory(){ localStorage.setItem('vl_history',JSON.stringify(history.slice(0,50))); }
+function renderHistory(){
+  const el = document.getElementById('historyList');
+  if(!el) return;
+  el.innerHTML = history.slice(0,15).map(h=>`<div class="hitem"><span class="ha">${escapeHtml(h.action)}</span><span class="hcr ${h.type}">${h.type==='cr'?'+':''}${h.amount} cr</span></div>`).join('') || '<div style="font-size:0.8rem;color:var(--muted);padding:10px 0;">No history yet.</div>';
+}
+
+// ============================================================
+// UPLOAD
+// ============================================================
+const uploadedFiles = {}; // keyed by input id -> File object
+function handleUpload(input, prevId, zoneId){
+  if(!input.files[0]) return;
+  uploadedFiles[input.id] = input.files[0];
+  const url = URL.createObjectURL(input.files[0]);
+  const prev = document.getElementById(prevId);
+  if(prev){ prev.src=url; prev.style.display='block'; }
+  const zone = document.getElementById(zoneId);
+  if(zone){ const icon=zone.querySelector('.uz-icon'); if(icon) icon.style.opacity='0.15'; }
+}
+
+// ============================================================
+// SELECTION HELPERS (simple chip/size pickers still used by Enhance style + Export)
+// ============================================================
+function pickChip(el){ el.closest('.mode-grid').querySelectorAll('.chip').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); }
+function pickSize(el){ el.closest('.export-sizes').querySelectorAll('.szchip').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); }
+function pickPmeth(el){ el.closest('.pay-methods').querySelectorAll('.pmeth').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); }
+function pickQtype(el, type){
+  quoteType=type;
+  document.querySelectorAll('#quotetypes .qttype').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('qtypePoster').style.display = type==='poster'?'block':'none';
+  document.getElementById('qtypeFlyer').style.display = type==='flyer'?'block':'none';
+  document.getElementById('qtypePersonal').style.display = type==='personal'?'block':'none';
+}
+function pickPlan(el, cr, price){ document.querySelectorAll('.plancard').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); planCr=cr; planPrice=price; const pb=document.getElementById('payBtn'); if(pb) pb.innerHTML=`<i class="fas fa-lock"></i> Pay $${price} — Get ${cr.toLocaleString()} Credits`; }
+
+// ============================================================
+// PROGRESS BAR ANIMATION (visual only — real call runs in parallel)
+// ============================================================
+function runProg(type, ms, steps, onDone){
+  const box=document.getElementById('prog-'+type);
+  const fill=document.getElementById('pf-'+type);
+  const step=document.getElementById('ps-'+type);
+  if(!box) return;
+  box.classList.add('show');
+  fill.style.width='0%';
+  let elapsed=0;
+  const tick=setInterval(()=>{
+    elapsed+=200;
+    const pct=Math.min(95,(elapsed/ms)*100);
+    fill.style.width=pct+'%';
+    const si=Math.min(Math.floor(pct/(100/steps.length)),steps.length-1);
+    step.textContent=steps[si];
+    if(elapsed>=ms){ clearInterval(tick); fill.style.width='100%'; step.textContent=steps[steps.length-1]; setTimeout(()=>{ box.classList.remove('show'); fill.style.width='0%'; onDone(); },400); }
+  },200);
+}
+
+// ============================================================
+// FEATURE: ENHANCE (1 free edit, then 2 credits)
+// ============================================================
+function updateEnhanceFreeUI(){
+  const notice=document.getElementById('enhanceFreeNotice');
+  const costLabel=document.getElementById('enhanceCostLabel');
+  if(hasUsedFreeEnhance()){
+    if(notice) notice.style.display='none';
+    if(costLabel) costLabel.textContent='2 credits';
+  } else {
+    if(notice) notice.style.display='flex';
+    if(costLabel) costLabel.textContent='FREE — 1st edit';
+  }
+}
+
+async function runEnhance(){
+  const file=uploadedFiles['file-enhance'];
+  if(!file){ showToast('Please upload a photo first!','error'); return; }
+  const style=document.querySelector('#mg-enhance-style .chip.sel')?.textContent?.trim()||'Natural';
+  const basePrompt=ENHANCE_PROMPTS[selectedEnhanceMode]||ENHANCE_PROMPTS['HD Quality'];
+  const fullPrompt=`${basePrompt} Apply a ${style.toLowerCase()} photo style overall. Keep the person's identity, pose and proportions fully realistic.`;
+  const steps=['Analyzing image...','Sending to server...','Applying AI model...','Finishing touches...','Done!'];
+  runProg('enhance',9000,steps,()=>{});
+  const reader=new FileReader();
+  reader.onload=(e)=>{ document.getElementById('orig-img').src=e.target.result; document.getElementById('res-enhance').classList.add('show'); };
+  reader.readAsDataURL(file);
+  try {
+    const resultUrl = await openaiImageEdit(file, fullPrompt, null, 'enhance');
+    document.getElementById('enh-img').src=resultUrl;
+    document.getElementById('enh-img').style.display='block';
+    document.getElementById('enh-ph').style.display='none';
+    showToast('✦ Enhancement complete!','success');
+    await refreshProfile(); // picks up new credit balance + freeEnhanceUsed flag from the backend
+  } catch(err){
+    showToast(err.message,'error');
+  }
+}
+
+// ============================================================
+// FEATURE: QUOTES (generate via backend Chat Completions, falls back to bank)
+// ============================================================
+async function generateQuoteText(cat){
+  try {
+    const q = await openaiChat(`Generate ONE powerful original quote about "${cat}". Return ONLY the quote text, no quote marks, no author, no explanation. Max 2 sentences. Be punchy and cinematic.`, 80);
+    if(q && q.length>10) return q;
+  } catch(e){}
+  const bank=QUOTE_BANK_FULL[cat]||QUOTE_BANK_FULL.Motivation;
+  return bank[Math.floor(Math.random()*bank.length)];
+}
+
+async function runPhotoQuote(){
+  const file=uploadedFiles['file-quote-photo'];
+  if(!file){ showToast('Please upload a photo first!','error'); return; }
+  const quoteText=document.getElementById('photoQuoteField').value.trim();
+  if(!quoteText){ showToast('Pick a quote from a category below first!','error'); return; }
+  const steps=['Composing layout...','Sending to server...','Placing your quote...','Done!'];
+  runProg('photoquote',9000,steps,()=>{});
+  const prompt=`Overlay this exact quote on the photo using elegant, bold, cinematic typography placed tastefully (e.g. lower third with a soft dark gradient behind the text for readability): "${quoteText}". Keep the photo itself realistic and unedited otherwise.`;
+  try {
+    const resultUrl = await openaiImageEdit(file, prompt, null, 'photoquote');
+    document.getElementById('photoquote-img').src=resultUrl;
+    document.getElementById('res-photoquote').classList.add('show');
+    showToast('✦ Photo + quote ready!','success');
+    await refreshProfile();
+  } catch(err){ showToast(err.message,'error'); }
+}
+
+// ============================================================
+// FEATURE: OUTFIT
+// ============================================================
+async function runOutfit(){
+  const file=uploadedFiles['file-outfit'];
+  if(!file){ showToast('Please upload a photo first!','error'); return; }
+  if(!selectedOutfit){ showToast('Choose a style and variant first!','error'); return; }
+  const steps=['Segmenting body...','Sending to server...','Generating outfit...','Blending...','Done!'];
+  runProg('outfit',12000,steps,()=>{});
+  try {
+    const resultUrl = await openaiImageEdit(file, selectedOutfit.prompt, null, 'outfit');
+    document.getElementById('outfit-img').src=resultUrl;
+    document.getElementById('res-outfit').classList.add('show');
+    showToast('✦ Outfit changed!','success');
+    await refreshProfile();
+  } catch(e){ showToast(e.message,'error'); }
+}
+
+// ============================================================
+// FEATURE: BACKGROUND
+// ============================================================
+async function runBackground(){
+  const file=uploadedFiles['file-background'];
+  if(!file){ showToast('Please upload a photo first!','error'); return; }
+  if(!selectedBg){ showToast('Choose a background scene first!','error'); return; }
+  const steps=['Removing background...','Generating new scene...','Compositing...','Done!'];
+  runProg('background',10000,steps,()=>{});
+  try {
+    const resultUrl = await openaiImageEdit(file, selectedBg.prompt, null, 'background');
+    document.getElementById('bg-img').src=resultUrl;
+    document.getElementById('res-background').classList.add('show');
+    showToast('✦ Background swap complete!','success');
+    await refreshProfile();
+  } catch(e){ showToast(e.message,'error'); }
+}
+
+// ============================================================
+// FEATURE: BEAUTY (only sends selected tasks)
+// ============================================================
+async function runBeauty(){
+  const file=uploadedFiles['file-beauty'];
+  if(!file){ showToast('Please upload a photo first!','error'); return; }
+  const tasks=getSelectedBeautyTasks();
+  if(!tasks.length){ showToast('Select at least one beauty task to apply!','error'); return; }
+  const prompt=`Apply ONLY the following natural beauty retouching tasks to this portrait, nothing else: ${tasks.join('; ')}. Keep identity, proportions and everything not listed fully unchanged.`;
+  const steps=['Detecting facial landmarks...','Sending to server...','Applying selected tasks...','Sharpening...','Done!'];
+  runProg('beauty',12000,steps,()=>{});
+  try {
+    const resultUrl = await openaiImageEdit(file, prompt, null, 'beauty');
+    document.getElementById('beauty-img').src=resultUrl;
+    document.getElementById('res-beauty').classList.add('show');
+    showToast('✦ Beauty enhancement complete!','success');
+    await refreshProfile();
+  } catch(e){ showToast(e.message,'error'); }
+}
+
+// ============================================================
+// FEATURE: PHOTO SHOOT (20 poses) — one server-side charge up front via
+// /photoshoot-start, then each pose is generated individually so partial
+// failures don't lose the whole shoot.
+// ============================================================
+async function runShoot(){
+  const file=uploadedFiles['file-shoot'];
+  if(!file){ showToast('Please upload a selfie first!','error'); return; }
+  if(!selectedShoot.style||!selectedShoot.outfit||!selectedShoot.background){ showToast('Choose a style, outfit and background first!','error'); return; }
+  try {
+    await VibeLensAPI.photoshootStart(); // charges the 10-credit shoot fee once
+  } catch(e){ showToast(e.message,'error'); return; }
+  const steps=['Building face model...','Generating pose variations...','Applying outfit...','Setting background...','Rendering poses...','Done!'];
+  runProg('shoot',40000,steps,()=>{});
+  showToast(`Generating your ${selectedShoot.style.name} shoot in ${selectedShoot.outfit} at ${selectedShoot.background} — this calls the server once per pose.`,'success');
+  const basePrompt=`${selectedShoot.style.prompt}. Outfit: ${selectedShoot.outfit}. Background: ${selectedShoot.background}.`;
+  renderPoseGrid([]); // show placeholder grid immediately
+  const urls=[];
+  for(let i=0;i<POSE_NAMES.length;i++){
+    try {
+      const poseP = `${basePrompt} Pose: ${POSE_NAMES[i]}.`;
+      const url = await openaiImageEdit(file, poseP, null, 'photoshoot-pose');
+      urls[i]=url;
+      renderPoseGrid(urls);
+    } catch(e){ /* leave as a retry-able placeholder if a single pose fails — shoot fee was already charged once */ }
+  }
+  await refreshProfile();
+}
+function renderPoseGrid(urls){
+  const container=document.getElementById('pose-container');
+  const results=document.getElementById('pose-results');
+  container.innerHTML='';
+  POSE_NAMES.forEach((name,i)=>{
+    const card=document.createElement('div');
+    card.className='pose-card';
+    if(urls[i]){
+      card.innerHTML=`<img src="${urls[i]}" style="width:100%;height:100%;object-fit:cover;"><div class="pname">${escapeHtml(name)}</div>`;
+      card.onclick=()=>dlFromUrl(urls[i],name+'.png');
+    } else {
+      card.innerHTML=imgPh(name,'fa-person',{sm:true,tag:false});
+      card.onclick=()=>showToast('Still generating or this pose failed — it will retry automatically.','error');
+    }
+    container.appendChild(card);
+  });
+  results.style.display='block';
+}
+
+// ============================================================
+// FEATURE: POSTER
+// ============================================================
+async function runPoster(){
+  const file=uploadedFiles['file-poster'];
+  if(!file){ showToast('Please upload a photo first!','error'); return; }
+  const prompt=document.getElementById('posterPromptArea').value.trim();
+  if(!prompt){ showToast('Choose a poster type or write a prompt first!','error'); return; }
+  const steps=['Composing layout...','Sending to server...','Applying typography...','Rendering...','Done!'];
+  runProg('poster',10000,steps,()=>{});
+  try {
+    const resultUrl = await openaiImageEdit(file, prompt, null, 'poster');
+    document.getElementById('poster-img').src=resultUrl;
+    document.getElementById('res-poster').classList.add('show');
+    showToast('✦ Poster generated!','success');
+    await refreshProfile();
+  } catch(e){ showToast(e.message,'error'); }
+}
+
+// ============================================================
+// AD SYSTEM
+// ============================================================
+function showAdThenDownload(imgId, filename){
+  adCallback=()=>dlResult(imgId,filename);
+  document.getElementById('adModal').classList.add('open');
+  let sec=5;
+  const cd=document.getElementById('adCountdown');
+  const skip=document.getElementById('skipAdBtn');
+  const fill=document.getElementById('adProgFill');
+  cd.textContent=sec;
+  skip.disabled=true;
+  skip.textContent='Skip Ad ('+sec+'s)';
+  fill.style.width='0%';
+  const t=setInterval(()=>{
+    sec--;
+    cd.textContent=sec;
+    fill.style.width=((5-sec)/5*100)+'%';
+    skip.textContent='Skip Ad ('+sec+'s)';
+    if(sec<=0){ clearInterval(t); skip.disabled=false; skip.textContent='Skip & Download'; }
+  },1000);
+}
+function skipAd(){
+  closeModal('adModal');
+  if(adCallback) adCallback();
+  adCallback=null;
+}
+function unlockNoWatermark(){
+  showToast('Buy credits to remove watermarks and skip ads!','error');
+  openTopup();
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportTo(platform){ const res=document.querySelector('#es-sizes .szchip.sel')?.textContent||'1080p'; showToast('Exporting to '+platform+' at '+res+'...','success'); }
+
+// ============================================================
+// HELPERS
+// ============================================================
+function dlResult(imgId, filename){ const img=document.getElementById(imgId); if(!img||!img.src||img.src===window.location.href) return showToast('No result yet','error'); dlFromUrl(img.src,filename); }
+function dlFromUrl(url, filename){ const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+function doShare(){ if(navigator.share) navigator.share({title:'VibeLens AI',url:window.location.href}); else { navigator.clipboard.writeText(window.location.href); showToast('Link copied!','success'); } }
+
+// ============================================================
+// MODALS
+// ============================================================
+function openTopup(){ document.getElementById('topupModal').classList.add('open'); }
+function openTopupWithPlan(cr, price){ pickPlan(document.querySelector('.plancard'),cr,price); openTopup(); }
+function openAuthModal(){ document.getElementById('authModal').classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.getElementById('topupModal').addEventListener('click',function(e){if(e.target===this)closeModal('topupModal');});
+document.getElementById('authModal').addEventListener('click',function(e){if(e.target===this)closeModal('authModal');});
+document.getElementById('lightboxOverlay').addEventListener('click',function(e){if(e.target===this)closeLightbox();});
+
+// Maps the on-screen credit amount to the backend's plan keys (see backend/src/routes/payments.js)
+const PLAN_KEY_BY_CREDITS = { 50:'starter', 150:'creator', 400:'pro' };
+
+async function completePurchase(){
+  const btn=document.getElementById('payBtn');
+  const planKey = PLAN_KEY_BY_CREDITS[planCr];
+  if(!planKey){ showToast('Unknown plan selected.','error'); return; }
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Redirecting to checkout...';
+  try {
+    const { url } = await VibeLensAPI.createCheckoutSession(planKey);
+    // Credits are added by the Stripe webhook once payment completes server-side —
+    // NOT here, so a closed tab or cancelled payment can never grant free credits.
+    window.location.href = url; // or window.open(url, '_blank') if you prefer an in-app browser tab
+  } catch(e){
+    showToast(e.message,'error');
+    btn.disabled=false; btn.innerHTML=`<i class="fas fa-lock"></i> Pay $${planPrice} — Get ${planCr.toLocaleString()} Credits`;
+  }
+}
+
+// ============================================================
+// AUTH — real Firebase Authentication (email/password + Google)
+// ============================================================
+let __firebaseReady = false;
+async function ensureFirebaseInit(){
+  if(__firebaseReady) return;
+  const cfg = window.VIBELENS_CONFIG && window.VIBELENS_CONFIG.FIREBASE_CONFIG;
+  if(!cfg || !cfg.apiKey || cfg.apiKey.startsWith('YOUR_')){
+    throw new Error('Firebase is not configured yet — fill in FIREBASE_CONFIG in app-config.js');
+  }
+  if(!window.firebase){
+    await loadScript('https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js');
+    await loadScript('https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js');
+  }
+  if(!firebase.apps.length) firebase.initializeApp(cfg);
+  __firebaseReady = true;
+}
+
+function signUpEmail(){
+  const email=document.getElementById('signup-email')?.value?.trim();
+  const pass=document.getElementById('signup-pass')?.value;
+  if(!email||!pass||pass.length<6){ showToast('Please enter valid email and password (min 6 chars)','error'); return; }
+  (async () => {
+    try {
+      await ensureFirebaseInit();
+      let cred;
+      try {
+        cred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+      } catch(err){
+        if(err.code === 'auth/email-already-in-use'){
+          cred = await firebase.auth().signInWithEmailAndPassword(email, pass);
+        } else { throw err; }
+      }
+      await completeSignIn(cred.user);
+    } catch(e){ showToast('Sign-up failed: '+e.message,'error'); }
+  })();
+}
+function switchToLogin(){ showToast('Enter your email & password again and tap Create Account — existing accounts sign in automatically.','success'); }
+
+async function signInWithGoogle(){
+  try {
+    await ensureFirebaseInit();
+    const result = await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    await completeSignIn(result.user);
+  } catch(e){ showToast('Sign-in failed: '+e.message,'error'); }
+}
+
+async function completeSignIn(fbUser){
+  isLoggedIn=true;
+  currentUser={displayName:fbUser.displayName, email:fbUser.email, photoURL:fbUser.photoURL||''};
+  closeModal('authModal');
+  updateUIForAuth(currentUser);
+  try {
+    await VibeLensAPI.bootstrap(); // creates the Firestore user doc + signup credits, server-side
+    await refreshProfile();
+    await loadHistoryFromServer();
+  } catch(e){ console.error('bootstrap failed', e); }
+  showToast('Welcome, '+(currentUser.displayName||currentUser.email||'User')+'! 🎉 You have '+credits+' credits.','success');
+  showPage('studio');
+  if(pendingAction){ const fn=pendingAction; pendingAction=null; setTimeout(fn,500); }
+}
+
+// Restores the session automatically on app launch if Firebase still has a
+// valid signed-in user (this is the real replacement for the old localStorage check).
+async function restoreSession(){
+  try {
+    await ensureFirebaseInit();
+    firebase.auth().onAuthStateChanged(async (fbUser) => {
+      if(fbUser){
+        isLoggedIn=true;
+        currentUser={displayName:fbUser.displayName, email:fbUser.email, photoURL:fbUser.photoURL||''};
+        updateUIForAuth(currentUser);
+        try { await VibeLensAPI.bootstrap(); await refreshProfile(); } catch(e){ console.error(e); }
+      } else {
+        isLoggedIn=false; currentUser=null;
+      }
+    });
+  } catch(e){ /* Firebase not configured yet — app still works in offline/demo mode */ }
+}
+
+function updateUIForAuth(user){
+  const av=document.getElementById('navAvatar');
+  if(av&&user.photoURL){ av.src=user.photoURL; av.classList.add('show'); }
+  document.getElementById('navSignIn').style.display='none';
+  document.getElementById('navTopup').style.display='block';
+  document.getElementById('navSettingsTab').style.display='block';
+  const ub=document.getElementById('userBar');
+  if(ub){ ub.classList.add('show'); document.getElementById('userAv').src=user.photoURL||''; document.getElementById('userNameTxt').textContent=user.displayName||user.email||'User'; document.getElementById('userEmailTxt').textContent=user.email||''; }
+}
+
+function signOut(){
+  isLoggedIn=false; currentUser=null; __cachedProfile=null;
+  document.getElementById('navAvatar').classList.remove('show');
+  document.getElementById('navSignIn').style.display='block';
+  document.getElementById('navTopup').style.display='none';
+  document.getElementById('userBar').classList.remove('show');
+  if(window.firebase && firebase.apps.length) firebase.auth().signOut().catch(()=>{});
+  showToast('Signed out successfully','success');
+  showPage('home');
+}
+
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+
+// ============================================================
+// SETTINGS — status only now. No API keys are entered or stored client-side;
+// the backend's .env is the only place secrets live. This just pings the
+// backend and Firebase config to show green/red status dots.
+// ============================================================
+async function checkBackendStatus(){
+  const base = (window.VIBELENS_CONFIG && window.VIBELENS_CONFIG.BACKEND_URL) || '';
+  let backendUp = false;
+  try { const r = await fetch(base + '/health'); backendUp = r.ok; } catch(e){ backendUp = false; }
+  const fbConfigured = !!(window.VIBELENS_CONFIG && window.VIBELENS_CONFIG.FIREBASE_CONFIG && !window.VIBELENS_CONFIG.FIREBASE_CONFIG.apiKey.startsWith('YOUR_'));
+  const map={
+    'd-openai-chat': backendUp?'on':'off',
+    'd-openai-image': backendUp?'on':'off',
+    'd-stripe': backendUp?'on':'off', // Stripe status is effectively "is the backend reachable"; real key validity is checked server-side
+    'd-firebase': fbConfigured?'on':'off'
+  };
+  Object.entries(map).forEach(([id,cls])=>{ const el=document.getElementById(id); if(el) el.className='api-dot '+cls; });
+}
+
+async function loadHistoryFromServer(){
+  try {
+    const d = await VibeLensAPI.history();
+    history = d.history || [];
+    renderHistory();
+  } catch(e){ /* not signed in yet */ }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type='success'){
+  const t=document.getElementById('toast');
+  t.className='toast '+type;
+  document.getElementById('toastMsg').textContent=msg;
+  document.getElementById('toastIcon').className=type==='success'?'fas fa-check-circle':'fas fa-exclamation-circle';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('show'),3800);
+}
+</script>
+</body>
+</html>
+

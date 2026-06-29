@@ -1,0 +1,28 @@
+<!--
+  Reference snippet — iOS Info.plist entries for VibeLens AI.
+
+  After running `npx cap add ios`, open:
+    frontend/ios/App/App/Info.plist
+  and add the two <key>/<string> pairs below inside the outer <dict>.
+
+  Apple REQUIRES these usage-description strings whenever an app can
+  access the camera or photo library — without them, the app crashes
+  on first access attempt and will also be rejected by App Review for
+  missing purpose strings.
+-->
+<plist version="1.0">
+<dict>
+
+    <key>NSCameraUsageDescription</key>
+    <string>VibeLens AI needs camera access so you can take a photo to transform.</string>
+
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>VibeLens AI needs photo library access so you can upload a picture to transform.</string>
+
+    <!-- Only needed if you let users SAVE results back to their photo library
+         (e.g. via a native save action instead of the browser download flow) -->
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>VibeLens AI saves your generated photos to your library when you tap Download.</string>
+
+</dict>
+</plist>

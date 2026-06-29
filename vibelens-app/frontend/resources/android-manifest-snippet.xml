@@ -1,0 +1,24 @@
+<!--
+  Reference snippet — Android permissions for VibeLens AI.
+
+  After running `npx cap add android`, open:
+    frontend/android/app/src/main/AndroidManifest.xml
+  and add the two <uses-permission> lines below inside the <manifest> tag
+  (as siblings of the existing <application> tag, not inside it).
+
+  Capacitor's default file input already uses the modern Android Photo
+  Picker on API 33+, so broad storage permissions are NOT needed and
+  would actually hurt your Play Store review (Google restricts apps that
+  request more access than necessary). Only CAMERA and the modern media
+  read permission are declared here.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- INTERNET is already added by Capacitor by default, listed here for
+         completeness since the app is network-dependent for every feature -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+</manifest>
